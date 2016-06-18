@@ -1,3 +1,3 @@
 #jsupratman13 WorkSpace
-#####Testing personal usage program
+Collection of software tutorials and exercise.
 =======

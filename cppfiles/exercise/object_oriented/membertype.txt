@@ -1,0 +1,13 @@
+access         | public |protected| private|
+-------------------------------------------
+same class     |yes     |yes      |yes     |
+-------------------------------------------
+derived classes|yes     |yes      |no      |
+-------------------------------------------
+outside classes|yes     |no       |no      |
+
+to access member of structure use dot.
+to access member of structure through pointer use arrow.
+
+use public for interface such as function
+use private/protected for implementation such as data,variable

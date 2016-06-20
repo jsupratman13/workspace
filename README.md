@@ -13,6 +13,7 @@ Collection of software tutorials and exercise.
   * Scipy
   * Numpy
   * Networkx
+  * Pygame
 * Markdown
 * Gnuplot
 * Latex

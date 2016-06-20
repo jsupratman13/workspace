@@ -2,5 +2,7 @@
 
 ##Compile Method
 qmake -project
+
 qmake
+
 make

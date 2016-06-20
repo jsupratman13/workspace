@@ -12,7 +12,7 @@ In C++, class have 3 common member, public, protected and private.
 In each member have their own special access.
 
 access|public|protected|private
--------------------------------
+------|------|---------|-------
 same class|yes|yes|yes
 derived class|yes|yes|no
 outside class|yes|no|no

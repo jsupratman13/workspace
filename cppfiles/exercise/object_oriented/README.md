@@ -6,6 +6,20 @@ class ClassName(){...
 ...
 };
 ```
+##Compile Method
+g++ [filename]
+
+#Content
+1. class
+2. inheritance
+3. constructor
+4. friend
+5. class pointer
+6. class static
+7. polymorphism
+8. abstract/encapsulation
+9. overload
+10. interface
 
 ##Membership
 In C++, class have 3 common member, public, protected and private.

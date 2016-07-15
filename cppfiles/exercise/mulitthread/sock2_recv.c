@@ -1,0 +1,21 @@
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+int main(){
+	int sock;
+	struct sockaddr_in addr;
+	char buf[2048];
+
+	sock = socket(AF_INET, SOCK_DGRAM, 0);
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(8000);
+	addr.sin_addr.s_addr = INADDR_ANY;
+	bind(sock, (struct sockaddr *)&addr, sizeof(addr));	//allocate address to socket
+
+	recv(sock, buf, sizeof(buf), 0); 	//receive
+	printf("%s\n", buf);
+	close(sock);
+	return 0;
+}

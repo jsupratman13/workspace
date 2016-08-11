@@ -1,0 +1,5 @@
+# This set velocity and returns success or not
+float64 linear_velocity
+float64 angular_velocity
+---
+bool success

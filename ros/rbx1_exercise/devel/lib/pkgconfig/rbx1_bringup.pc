@@ -1,0 +1,8 @@
+prefix=/home/jsupratman13/github/workspace/ros/rbx1_exercise/devel
+
+Name: rbx1_bringup
+Description: Description of rbx1_bringup
+Version: 0.4.0
+Cflags: 
+Libs: -L/home/jsupratman13/github/workspace/ros/rbx1_exercise/devel/lib 
+Requires: 

@@ -1,0 +1,8 @@
+prefix=/home/jsupratman13/github/workspace/ros/exercise6/devel
+
+Name: agrit
+Description: Description of agrit
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/jsupratman13/github/workspace/ros/exercise6/devel/lib 
+Requires: 

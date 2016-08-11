@@ -1,0 +1,8 @@
+prefix=/home/jsupratman13/github/workspace/ros/pyexercise2_gazebo/devel
+
+Name: ros_start2
+Description: Description of ros_start2
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/jsupratman13/github/workspace/ros/pyexercise2_gazebo/devel/lib 
+Requires: 

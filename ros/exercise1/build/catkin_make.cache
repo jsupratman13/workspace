@@ -1,0 +1,2 @@
+agitr
+-DCATKIN_DEVEL_PREFIX=/home/jsupratman13/github/workspace/ros/exercise1/devel -DCMAKE_INSTALL_PREFIX=/home/jsupratman13/github/workspace/ros/exercise1/install -G Unix Makefiles

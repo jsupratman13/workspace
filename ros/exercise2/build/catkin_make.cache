@@ -1,0 +1,2 @@
+agrit2
+-DCATKIN_DEVEL_PREFIX=/home/jsupratman13/github/workspace/ros/exercise2/devel -DCMAKE_INSTALL_PREFIX=/home/jsupratman13/github/workspace/ros/exercise2/install -G Unix Makefiles

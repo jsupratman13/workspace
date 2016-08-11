@@ -1,0 +1,35 @@
+[0m[ INFO] [1468747823.053777816]: Info appear every 0.3s[0m
+[33m[ WARN] [1468747823.053848685]: Warn appear every 0.5s[0m
+[31m[ERROR] [1468747823.053878629]: Error appear every 1s[0m
+[31m[FATAL] [1468747823.053903266]: Fatal appear every 2s[0m
+[0m[ INFO] [1468747823.353736677]: Info appear every 0.3s[0m
+[33m[ WARN] [1468747823.553864256]: Warn appear every 0.5s[0m
+[0m[ INFO] [1468747823.653734798]: Info appear every 0.3s[0m
+[0m[ INFO] [1468747823.953735063]: Info appear every 0.3s[0m
+[33m[ WARN] [1468747824.053845429]: Warn appear every 0.5s[0m
+[31m[ERROR] [1468747824.053875341]: Error appear every 1s[0m
+[0m[ INFO] [1468747824.253741682]: Info appear every 0.3s[0m
+[0m[ INFO] [1468747824.553753417]: Info appear every 0.3s[0m
+[33m[ WARN] [1468747824.553841150]: Warn appear every 0.5s[0m
+[0m[ INFO] [1468747824.853745014]: Info appear every 0.3s[0m
+[33m[ WARN] [1468747825.053846474]: Warn appear every 0.5s[0m
+[31m[ERROR] [1468747825.053877330]: Error appear every 1s[0m
+[31m[FATAL] [1468747825.053901691]: Fatal appear every 2s[0m
+[0m[ INFO] [1468747825.153733875]: Info appear every 0.3s[0m
+[0m[ INFO] [1468747825.453766523]: Info appear every 0.3s[0m
+[33m[ WARN] [1468747825.553860078]: Warn appear every 0.5s[0m
+[0m[ INFO] [1468747825.753734494]: Info appear every 0.3s[0m
+[0m[ INFO] [1468747826.053743085]: Info appear every 0.3s[0m
+[33m[ WARN] [1468747826.053841031]: Warn appear every 0.5s[0m
+[31m[ERROR] [1468747826.053881804]: Error appear every 1s[0m
+[0m[ INFO] [1468747826.353734124]: Info appear every 0.3s[0m
+[33m[ WARN] [1468747826.553864350]: Warn appear every 0.5s[0m
+[0m[ INFO] [1468747826.653734406]: Info appear every 0.3s[0m
+[0m[ INFO] [1468747826.953733434]: Info appear every 0.3s[0m
+[33m[ WARN] [1468747827.053844393]: Warn appear every 0.5s[0m
+[31m[ERROR] [1468747827.053877120]: Error appear every 1s[0m
+[31m[FATAL] [1468747827.053897843]: Fatal appear every 2s[0m
+[0m[ INFO] [1468747827.253742132]: Info appear every 0.3s[0m
+[0m[ INFO] [1468747827.553753831]: Info appear every 0.3s[0m
+[33m[ WARN] [1468747827.553841372]: Warn appear every 0.5s[0m
+[0m[ INFO] [1468747827.853756123]: Info appear every 0.3s[0m

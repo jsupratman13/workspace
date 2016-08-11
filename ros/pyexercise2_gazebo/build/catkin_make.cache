@@ -1,0 +1,2 @@
+ros_start2
+-DCATKIN_DEVEL_PREFIX=/home/jsupratman13/github/workspace/ros/pyexercise2_gazebo/devel -DCMAKE_INSTALL_PREFIX=/home/jsupratman13/github/workspace/ros/pyexercise2_gazebo/install -G Unix Makefiles

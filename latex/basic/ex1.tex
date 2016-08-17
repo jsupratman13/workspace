@@ -1,0 +1,51 @@
+\documentclass{article}
+%\documentclass{report}
+%\documentclass{book}
+\usepackage{graphicx}
+\title{Here is the title}
+\author{joshua supratman}
+\date{\today}
+
+\begin{document}
+\maketitle
+welcome to \LaTeX go look at Fig. \ref{fig:kirby}.
+\tableofcontents
+%\chapter{bullet points}
+\pagebreak
+\begin{itemize}
+	\item \% is comment symbol and \$ is a equation mode symbol
+	\item when writing \%, \$, use \verb|\%|, and \verb|\%| for actually using the symbol
+\end{itemize}
+
+\section{Table without lines}
+\begin{tabular}{rlr} %right, left ,right
+	January & February & March \\
+	April & May & June \\
+\end{tabular}
+
+\subsection{Table with lines}
+\begin{tabular}{|c|c||c|} %center, center, center with vertical lines |
+	\hline
+	July & August & September \\
+	\hline
+	October & November & December \\
+	Decade& Century & Millenium \\
+	\hline
+\end{tabular}
+
+%\chapter{list number}
+\section{list number}
+\begin{enumerate}
+	\item this is the first
+	\item this is the second and so on
+\end{enumerate}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics{kirby.png}
+\caption{Kirby}
+\label{fig:kirby}
+\end{center}
+\end{figure}
+
+\end{document}

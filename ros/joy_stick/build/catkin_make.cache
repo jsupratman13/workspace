@@ -1,0 +1,2 @@
+joy_stick
+-DCATKIN_DEVEL_PREFIX=/home/jsupratman13/github/workspace/ros/joy_stick/devel -DCMAKE_INSTALL_PREFIX=/home/jsupratman13/github/workspace/ros/joy_stick/install -G Unix Makefiles

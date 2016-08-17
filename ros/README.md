@@ -522,4 +522,24 @@ catkin_make
 --activate RViz
 rosrun rviz rviz
 
+--rosrun rqt ez publisher
+rosrun rqt_ez_publisher rqt_ez_publisher
+
+--activate rqt plot
+rqt_plot [topic-name]
+
+###connect to controllers
+--install joy package
+sudo apt-get install ros-indigo-joy
+sudo apt-get install ros-indigo-teleop-twist-joy
+
+--check connection
+ls /dev/input (should have jsX where X = 0,1,2...n)
+sudo jstest /dev/input/jsX (X in input found in ls)
+ls -l /dev/input/jsX
+(if crw-rw--- then sudo chmod a+rw /dev/input/jsX)
+rosrun joy joy_node
+rostopic echo joy
+
+
 

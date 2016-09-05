@@ -1,0 +1,1 @@
+probability of 5 cells with same distribution is 1/5 or 0.2

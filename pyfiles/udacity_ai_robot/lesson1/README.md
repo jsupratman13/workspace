@@ -1,14 +1,75 @@
 #Lesson 1 Localization
 
 ##Core concept
+2d -> robot -> uniform -> sense -> move -> sense -> convolution
 
-##uniform distribution
+##Uniform Distribution
+Uniform Distribution means that the probability of all possilibilty is the same.
+
+For example the probability of 5 cell with uniform(same) distribution is 1/5 or 0.2
 
 ##Normalization
+The sum of probability must equal to 1. The process of converting the calculated probability to meet this condition is normalization.
 
-##Exact Movement
+For example:
+given 5 cells with color red or green
+green|red|red|green|green
+ 0.2  |0.2|0.2|0.2  |0.2
+ x1   |x2 |x3 |x4   |x5
+say robot saw red
+red * 0.6
+green * 0.2
+ green|red |red |green|green
+ 0.04 |0.12|0.12|0.04 |0.04
+total distribution = 0.36
+however distribution needs to add up to 1!
+therefore we normalize our distribution by dividing each cell by total distribution
+ green|red |red |green|green
+ 0.11 |0.33|0.33|0.11 |0.11
+ 1/9  |1/3 |1/3 |1/9  |1/9
+total distribution = 0.99
+probability of x after observation z = posterior distribution
+p(xi|z)
 
 ##In Exact Movement
+In an ideal situation, exact movement is when robot move precisely as it should. 
+However in reality, robot would not completely move exactly as it should do to noise. This is called inexact movement.
+For example:
+cells
+0,1,0,0,0
+if U=2
+target is
+0,0,0,1,0
+however robot may overshoot/undershoot target such that
+1->0.1
+1-->0.8
+1--->0.1
+probability
+therefore if
+U=2
+p(Xi+2|Xi)=0.8
+p(Xi+1|Xi)=0.1
+(Xi+3|Xi)=0.1
+the distribution is
+0|0|0|1|0| to
+0|0|0.1|0.8|0.1
+if U=2
+p(Xi+2|Xi)=0.8
+p(Xi+1|Xi)=0.1
+p(Xi+3|Xi)=0.1
+initial is
+ 0  |0.5 |0  |0.5 |0
+then
+0  : |    |0   |0   |0   |
+0.5: |    |    |0.05|0.4 |0.05
+0  : |0   |    |    |0   |0
+0.5: |0.4 |0.05|    |    |0.05
+etc.
+final:
+ 0.4|0.05|0.05|0.4|0.1
+if uniform distribution, no uncertainty
+ex 0.2,0.2,0.2,0.2,0.2
+then 0.2,0.2,0.2,0.2,0.2
 
 ##Sense Movement
 initial belief -> sense
@@ -70,6 +131,14 @@ h-> flip, accept
 p(H)=?
 
 ans 0.25
+
+##Limit Distribuition
+for example:
+1,0,0,0,0
+if U=1 but continously move then
+0.2,0.2,0.2,0.2,0.2
+the more the robot moves the more uncertain it becomes and finally reaches maximum uncertainty which is uniform distribution
+0.7*p(X2)+0.1*p(X1)+0.1*p(X3)=p(X4)
 
 #Conclusion
 * Localization

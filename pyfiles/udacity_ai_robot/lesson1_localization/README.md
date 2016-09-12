@@ -1,4 +1,5 @@
 #Lesson 1 Localization
+Monte Carlo Localization
 
 ##Core concept
 2d -> robot -> uniform -> sense -> move -> sense -> convolution

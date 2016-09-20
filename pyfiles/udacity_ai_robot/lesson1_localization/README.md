@@ -1,4 +1,4 @@
-#Lesson 1 Localization
+#Lesson 1 Histogram Filter
 Monte Carlo Localization
 
 ##Core concept

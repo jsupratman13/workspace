@@ -58,10 +58,22 @@ for i in range(N):
 p2 = []
 for i in range(N):
 	p2.append(move(p[i],0.1,5.0))
-print p
 
 #Importance weight, actual + measurement
 w = []
 for i in range(N):
 	w.append(weight_importance(p[i],Z))
-print w
+
+#resampling using circumference method
+p3 = []
+beta = 0
+j = int(random.random()*N)
+while len(p3) < 1000:
+	beta = beta + (random.random() * 2 * max(w))
+	while w[j] < beta:
+		beta = beta - w[j]
+		j = (j+1)%1000
+	p3.append(p[j])
+p = p3
+for i in p:
+	print i

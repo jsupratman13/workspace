@@ -77,15 +77,15 @@ class robot(object):
 
 	def __repr__(self):
 		return '[x=%.6s y=%.6s orient=%.6s]' % (str(self.x), str(self.y), str(self.orientation))
-
-def eval(r, p):
-	sum_eval = 0.0;
+def evaluation(r, p):
+	sum_eval = 0.0
 	for i in range(len(p)): #calculate mean error
 		dx = (p[i].x - r.x + (world_size/2.0)) % world_size - (world_size/2.0)
 		dy = (p[i].y - r.y + (world_size/2.0)) % world_size - (world_size/2.0)
 		err = math.sqrt(dx * dx + dy * dy)
 		sum_eval += err
 	return sum_eval / float(len(p))
+
 
 if __name__ == '__main__':
 	myrobot = robot()
@@ -110,17 +110,37 @@ if __name__ == '__main__':
 		x.set_noise(0.05,0.05,5.0)
 		p.append(x)
 #	print p
-
-	#move each particle
-	p2 = []
-	for i in range(N):
-		p2.append(p[i].move(0.1,5.0))
-	p = p2
-
-	#Calc importance weight
-	w = []
-	for i in range(N):
-		w.append(p[i].measurement_prob(Z))
 	
-	#Resampling
+	T = 10
+	for t in range(T):
+		#move and measurent
+		myrobot = myrobot.move(0.1,5.0)
+		Z = myrobot.sense()
+
+		#move each particle
+		p2 = []
+		for i in range(N):
+			p2.append(p[i].move(0.1,5.0))
+		p = p2
+
+		#Calc importance weight
+		w = []
+		for i in range(N):
+			w.append(p[i].measurement_prob(Z))
+		
+		#Resampling (circumference method)
+		p3 = []
+		beta = 0
+		index = int(random.random()*N)
+		for i in range(N):
+			beta += random.uniform(0,2*max(w))
+			while w[index] < beta:
+				beta -= w[index]
+				index = (index+1)%1000
+			p3.append(p[index])
+		p = p3
+	
+		#evaluat margin of error in 100 by 100 world
+		print evaluation(myrobot, p)
+
 

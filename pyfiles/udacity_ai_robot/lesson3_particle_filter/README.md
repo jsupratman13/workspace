@@ -44,4 +44,43 @@ the higher the more likely it is
 * The new random set of particles will pick the particles with high importance several times
 * sometime, higher importance might not be sampled at all
 * probability of never sampling p1 = (1-pi)^N where N is number of sampling
+###Circumference method
+* All particles describe in single pi graph
+* The more the weight, the larger the area
+* with beta = random number, if beta is smaller than weight, append else skip
+pseudo code
+```
+while w[index] < beta:
+	beta = beta - w[index]
+	index = index + 1
+select p[index]
+```
+* orientation require a bit more movement before it becomes accurate
 
+##Review
+Measurement update
+* posterior over state given the measurement ->
+* proportional up to normalization of probability of the measurement given the state times 'p' of the state itself
+p(X|2) ox p(2|X)p(X)
+p(x) = set of particles, thousand particles together represent prior X
+P(2|X) = importance weight
+proportional = resampling (transform back into representing correct posterior)
+
+Motion update
+* posterior over distribution, 1 times sublayer ->
+* the convolution of the transition probability times prior
+P(X') = sigma(P(X'|X))P(X)
+p(X) = particles
+sigma(P(X'|X)) = sampled (taking random particles of p(X) and applying motion model with a noise model to generate random particle x')
+P(X') = new particle set
+
+##Conclusion
+* All 3 filters follow the same math above for measurement update, and motion update
+
+##Google car difference
+* Robot Model
+GoogleCar: 2 steerable and 2 non steerable(bicycle model)
+* Sensor Data
+snapshot of the map, and match with elaborate road map
+* Additional Sensor
+-GPS, Inertial Sensor

@@ -5,6 +5,17 @@ Java program exercise. Require JDK
 javac [filename].java (filename must be same as class name)
 java [filename]
 
+##Include external JAR files
+javac -cp .:path1/xxx.jar:path2/yyy.jar [filename].java
+java -cp .:path1/xxx.jar:path2/yyy.jar [filename]
+
+##Include Externa Native Libraries
+* .lib = windows static library
+* .dll = windows dynamically link library
+* .a = unix static library
+* .so = unix shared library
+java -Djava.library.path=xxx [filename]
+
 ##Characteristic
 * object oriented
 * platfrom independent
@@ -18,16 +29,4 @@ java [filename]
 * high performance
 * distributed
 * dynamic
-
-##Include external JAR files
-javac -cp .:path1/xxx.jar:path2/yyy.jar [filename].java
-java -cp .:path1/xxx.jar:path2/yyy.jar [filename]
-
-##Include Externa Native Libraries
-* .lib = windows static library
-* .dll = windows dynamically link library
-* .a = unix static library
-* .so = unix shared library
-java -Djava.library.path=xxx [filename]
-
 

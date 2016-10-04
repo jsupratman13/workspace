@@ -16,6 +16,9 @@ java -cp .:path1/xxx.jar:path2/yyy.jar [filename]
 * .so = unix shared library
 java -Djava.library.path=xxx [filename]
 
+##View jar files
+jar -tvf [filename].jar
+
 ##Characteristic
 * object oriented
 * platfrom independent

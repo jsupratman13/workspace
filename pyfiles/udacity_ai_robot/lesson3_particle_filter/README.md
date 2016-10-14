@@ -76,6 +76,8 @@ P(X') = new particle set
 
 ##Conclusion
 * All 3 filters follow the same math above for measurement update, and motion update
+* Motion loses information and thus particles will tend to spread out more
+* particle filter with only 1 particle will ignore robot measurement (since it has same sample no matter what) and it will likely fail
 
 ##Google car difference
 * Robot Model
@@ -84,3 +86,21 @@ GoogleCar: 2 steerable and 2 non steerable(bicycle model)
 snapshot of the map, and match with elaborate road map
 * Additional Sensor
 -GPS, Inertial Sensor
+
+##Quiz1
+For state A,B,C,D what is the probability of that zero particles are in A?
+N=1 : one state is 1/4 so the opposite is 3/4 = 0.75
+N=4: 0.75^4
+N=10: o.75^10
+
+##Quiz2
+For state A=5, B=3, C=3, D=1,
+A|B
+--
+C|D
+50% of horizontal and vertical but never diagonal nor staying, what is
+N=1 : A=D=Bx0.5+Cx0.5, B=C=Ax0.5+Dx0.5
+N=inf: lose info so distribute equally, 3,3,3,3 
+
+##Quiz3
+Bicycle model

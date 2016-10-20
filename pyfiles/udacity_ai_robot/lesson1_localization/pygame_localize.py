@@ -46,6 +46,29 @@ class Grid(object):
 					[RED,RED,RED,RED,RED]]
 		self.grid_map = grid_map
 		return grid_map
+
+	def use_grid2(self):
+		WHITE = self.WHITE
+		RED = self.RED
+		grid_map = [[RED,WHITE,RED,WHITE],
+					[WHITE,RED,WHITE,RED],
+					[RED,WHITE,RED,WHITE],
+					[WHITE,RED,WHITE,RED]]
+		self.grid_map = grid_map
+		return grid_map
+
+	def use_grid3(self):
+		W = self.WHITE
+		R = self.RED
+		B = self.BLUE
+		G = self.GREEN
+		grid_map = [[W,R,B,G,G],
+					[G,B,R,R,R],
+					[W,W,B,G,R],
+					[B,G,R,W,W],
+					[B,G,R,B,B]]
+		self.grid_map = grid_map
+		return grid_map
 	
 	def fit_window_to_grid(self):
 		WIDTH = self.WIDTH
@@ -117,9 +140,13 @@ class MonteCarlo(object):
 		self.p_move = motion_accuracy
 
 	def show(self):
-		for rows in self.grid_prob:
-			print rows
+		for row in range(len(self.grid_prob)):
+			print '[',
+			for column in range(len(self.grid_prob[0])):
+				print '%2f' % self.grid_prob[row][column],
+			print ']'
 
+	
 if __name__ == '__main__':
 	grid = Grid()
 	
@@ -128,7 +155,7 @@ if __name__ == '__main__':
 	HEIGHT = grid.HEIGHT
 	MARGIN = grid.MARGIN
 	
-	grid_map = grid.use_grid1()
+	grid_map = grid.use_grid3()
 
 	pygame.init()
 	
@@ -143,10 +170,10 @@ if __name__ == '__main__':
 	init_y = randint(0,len(grid_map)-1)
 	rect.center = (pygame.Rect(grid.coordinateX(init_x),grid.coordinateY(init_y),WIDTH,HEIGHT)).center
 
-	update_flag = True
+	update_flag = False
 	motion = [0,0]
 	renge = MonteCarlo(grid_map)
-
+	renge.show()
 	while True:
 		pygame.display.update()
 		clock.tick(60)

@@ -14,7 +14,7 @@ class bicycle:
 		self.orientation = random.random() * 2*math.pi #theta of bicycle
 		self.length = length # length of bicycle, between two wheels
 		self.bearing_noise = 0
-		self.steering_nois = 0
+		self.steering_noise = 0
 		self.distance_noise = 0
 
 	def __repr__(self):
@@ -36,10 +36,20 @@ class bicycle:
 	def move(self, motion): 
 		alpha = motion[0] #steering angle
 		distance = motion[1] #target distance
+		
+		if math.fabs(alpha) > max_steering_angle:
+			raise ValueError, 'exceed max steering angle'
+		if distance < 0.0:
+			raise ValueError, 'backward is not allowed'
+		
 		length = self.length
 		x = self.x
 		y = self.y
 		theta = self.orientation
+
+		#noise
+		steering_noise = random.gauss(alpha, self.steering_noise)
+		distance_noise = random.gauss(alpha, self.distance_noise)
 
 		beta = (distance/length) * math.tan(alpha) #angle turn from center
 		if math.fabs(beta) < 0.001: #going straight
@@ -51,19 +61,32 @@ class bicycle:
 			radius = (distance/beta) #radius of circle
 			center_x = x - (radius * math.sin(theta)) #x coordinate of circle
 			center_y = y + (radius * math.cos(theta)) #y coordinate of circle
-			self.x = center_x + (radius * math.sin(theta+beta))
-			self.y = center_y - (radius * math.cos(theta+beta))
-			self.orientation = (beta + theta) % (2*math.pi)
+			self.orientation = (beta+theta) % (2*math.pi)
+			self.x = center_x + (radius * math.sin(self.orientation))
+			self.y = center_y - (radius * math.cos(self.orientation))
 
 		return self
+
+	def sense(self):
+		Z = []
+		for landmark in landmarks:
+			y = landmark[0] - self.y
+			x = landmark[1] - self.x
+			bearing = math.atan2(y,x) - self.orientation
+			if self.steering_noise > 0.0:
+				bearing += random.gauss(0.0,self.steering_noise)
+			bearing %= 2*math.pi
+			Z.append(bearing)
+		return Z
 
 def test():
 	length = 20.0
 	bot = bicycle(length)
-	bot.set(0.0,0.0,0.0)
+	bot.set(30.0,20.0,0.0)
 	motions = [[0.0,10.0],[math.pi/6.0,10.0],[0.0,20.0]] #steer angle, distance
 	motion_length = len(motions)
 	print 'bot: ', bot
+	print 'measurement: ',  bot.sense()
 	for i in range(motion_length):
 		bot = bot.move(motions[i])
 		print 'bot: ', bot

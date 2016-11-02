@@ -36,6 +36,8 @@ delta_name = ['^', '<', 'v', '>']
 def search(grid, init, goal, cost):
 	#open list elements are of type [g,x,y]
 
+	expand = [[-1 for row in range(len(grid[0]))]for col in range(len(grid))]
+	index = 0
 	#get closed grid to prevent node from being checked again, 0 for open, 1 for closed
 	closed = [[0 for row in range(len(grid[0]))] for col in range(len(grid))]
 	closed[init[0]][init[1]] = 1
@@ -70,7 +72,11 @@ def search(grid, init, goal, cost):
 			x = next[1]
 			y = next[2]
 			g = next[0]
-
+	
+			#check what areas are searched
+			expand[x][y] = index
+			index += 1
+		
 			#check if we are done
 			if x == goal[0] and y == goal[1]:
 				found = True
@@ -87,6 +93,9 @@ def search(grid, init, goal, cost):
 							#print 'append list item"
 							#print [g2,x2,y2]
 							closed[x2][y2] = 1
+	return expand
 
 if __name__ == '__main__':
-	search(grid,init,goal,cost)
+	expand = search(grid,init,goal,cost)
+	for row in expand:
+		print row

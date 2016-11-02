@@ -45,6 +45,7 @@ def search(grid, init, goal, cost):
 		print 'expanding '+str(node)
 		if (node[2] == goal[1]) and (node[1] == goal[0]):
 			print 'found target'
+			close_list.append(node)
 			return node
 		successor_list = []
 		for move in delta:
@@ -69,6 +70,14 @@ def search(grid, init, goal, cost):
 
 	return 'failed to find path'
 	#return path
+
+def path(close_list):
+	close_list.sort()
+	target = close_list.pop()
+	tcost = target[0]
+	path = [target]
+	for i in close_list:
+		pass
 
 if __name__ == '__main__':
 	result = search(grid,init,goal,cost)

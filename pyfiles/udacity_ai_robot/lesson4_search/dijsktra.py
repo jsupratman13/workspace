@@ -34,28 +34,29 @@ delta_name = ['^', '<', 'v', '>']
 
 
 def search(grid, init, goal, cost):
-	start = [cost, init[0], init[1]]
+	start = [0, init[0], init[1]]
 	open_list = [start]
 	close_list = []
 	while open_list:
 		open_list.sort()
+#		open_list.reverse()
 		print 'current ' +str(open_list)
 		node = open_list.pop(0)
 		print 'expanding '+str(node)
-		if (node[1] == goal[1]) and (node[2] == goal[0]):
+		if (node[2] == goal[1]) and (node[1] == goal[0]):
 			print 'found target'
 			return node
 		successor_list = []
 		for move in delta:
-			x = node[1] + move[1]
-			y = node[2] + move[0]
+			x = node[2] + move[1]
+			y = node[1] + move[0]
 			if (len(grid[0]) > x >= 0) and (len(grid) > y >= 0):
 				if not grid[y][x]:
 					for ol in open_list:
 						if (x==ol[1]) and (y==ol[2]):
 							break
 					else:
-						successor_list.append([node[0]+1,x,y])
+						successor_list.append([node[0]+cost,y,x])
 		for child in successor_list:
 			for cl in close_list:
 				if (child[1]==cl[1]) and (child[2]==cl[2]):

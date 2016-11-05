@@ -112,44 +112,43 @@ class Renge(object):
 		return res
 
 class ParticleFilter(object):
-	def __init__(self, landmarks, m_noise, s_noise):
+	def __init__(self, landmarks, m_noise, s_noise, N=100):
 		self.landmarks = landmarks
 		self.movement_noise = m_noise
 		self.sense_noise = s_noise
-		self.p = []
+		self.N = N
 
-	def update(self,motion, measurement, N=100):
 		#make particles
-		p = []
-		for i in range(N):
+		self.p = []
+		for i in range(self.N):
 			r = Renge(self.landmarks)
-			r.set_noise(self.movement_noise, self.sense_noise)
-			p.append(r)
+			r.set_noise(m_noise, s_noise)
+			self.p.append(r)
 
-		#move each particle
+	def update(self,motion, measurement):
 		p2 = []
-		for i in range(N):
-			p2.append(p[i].predicted_move(motion))
-		p = p2
+		for i in range(self.N):
+			p2.append(self.p[i].predicted_move(motion))
+		self.p = p2
 
 		#calc importance weight
 		w = []
-		for i in range(N):
-			w.append(p[i].measurement_probability(measurement))
+		for i in range(self.N):
+			w.append(self.p[i].measurement_probability(measurement))
 		
 		#resampling
 		p3 = []
 		beta = 0
-		index = int(random.random()*N)
-		for i in range(N):
+		index = int(random.random()*self.N)
+		for i in range(self.N):
 			beta += random.uniform(0,2*max(w))
 			while beta > w[index]:
 				beta -= w[index]
-				index = (index+1)%N
-			p3.append(p[index])
-		p = p3
+				index = (index+1)%self.N
+			p3.append(self.p[index])
+		self.p = p3
 
-		return p
+		return self.p
 
 	def get_position(self,p):
 		x = 0.0
@@ -202,14 +201,16 @@ if __name__ == '__main__':
 		motion = [0,0]
 		if pressed_key[pygame.K_LEFT]: rect.move_ip(-1,0); update_flag = True; motion = [-1, 0]
 		if pressed_key[pygame.K_RIGHT]: rect.move_ip(1,0); update_flag = True; motion = [1, 0]
-		if pressed_key[pygame.K_UP]: rect.move_ip(0, -1); update_flag = True; motion = [ 0, 1]
-		if pressed_key[pygame.K_DOWN]: rect.move_ip(0,1); update_flag = True; motion = [ 0, -1]
+		if pressed_key[pygame.K_UP]: rect.move_ip(0, -1); update_flag = True; motion = [ 0, -1]
+		if pressed_key[pygame.K_DOWN]: rect.move_ip(0,1); update_flag = True; motion = [ 0, 1]
 
 		world.draw_world()
 		
 		if update_flag:
 			measurement = world.get_landmarks(rect.centerx, rect.centery)
 			particle = particle_filter.update(motion,measurement)
+			for p in particle:
+				p.print_pos()
 			pos = particle_filter.get_position(particle)
 			print '------------'
 			print 'truth: ' + str(rect.centerx) + ' ' + str(rect.centery)
@@ -221,6 +222,6 @@ if __name__ == '__main__':
 		if rect.centery < 0: rect.centery = 0
 		screen.blit(im,rect)
 
-		update_flag = False
+		update_flag = True
 
 

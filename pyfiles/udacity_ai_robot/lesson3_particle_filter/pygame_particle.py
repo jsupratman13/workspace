@@ -23,12 +23,9 @@ class WorldMap(object):
 		self.x3, self.y3 = random.randint(self.MARGIN+5, self.WIDTH/2-self.MARGIN-5),random.randint(self.MARGIN+5, self.HEIGHT-self.MARGIN-5)
 		self.landmarks = [[self.x1, self.y1],[self.x2, self.y2],[self.x3, self.y3]]
 
-	def coordinateX(self, column):
-		return (self.MARGIN+self.WIDTH)*column+self.MARGIN
-
-	def coordinateY(self,row):
-		return (self.MARGIN+self.HEIGHT)*row+self.MARGIN
-
+		self.WORLD = pygame.Rect([self.MARGIN, self.MARGIN, self.HEIGHT-self.MARGIN, self.WIDTH/2-self.MARGIN])
+		self.MAP = pygame.Rect([self.WIDTH/2 + self.MARGIN, self.MARGIN, self.HEIGHT-self.MARGIN, self.WIDTH/2-self.MARGIN])
+	
 	def get_landmarks(self,x,y):
 		#local coordinate
 		green_dist = math.sqrt((x-self.x1)**2 + (y-self.y1)**2)
@@ -38,13 +35,13 @@ class WorldMap(object):
 
 	def draw_world(self):
 		#WORLD
-		pygame.draw.rect(screen,self.RED,pygame.Rect([self.MARGIN, self.MARGIN, self.HEIGHT-self.MARGIN, self.WIDTH/2-self.MARGIN]), 3)
-		pygame.draw.rect(screen,self.RED,pygame.Rect([self.WIDTH/2+self.MARGIN, self.MARGIN, self.HEIGHT-self.MARGIN, self.WIDTH/2-self.MARGIN]), 3)
+		pygame.draw.rect(screen,self.RED,self.WORLD,3)
 		pygame.draw.circle(screen, self.GREEN, (self.x1,self.y1),5)
 		pygame.draw.circle(screen, self.YELLOW, (self.x2,self.y2),5)
 		pygame.draw.circle(screen, self.PURPLE, (self.x3,self.y3),5)
 		
 		#MAP
+		pygame.draw.rect(screen,self.RED,self.MAP,3)
 		pygame.draw.circle(screen, self.GREEN, (self.x1+self.WIDTH/2,self.y1),5)
 		pygame.draw.circle(screen, self.YELLOW, (self.x2+self.WIDTH/2,self.y2),5)
 		pygame.draw.circle(screen, self.PURPLE, (self.x3+self.WIDTH/2,self.y3),5)
@@ -165,6 +162,7 @@ class ParticleFilter(object):
 		return (1-(error_x / current_pos[0]))*100
 
 if __name__ == '__main__':
+	#initialization
 	world = WorldMap()
 	
 	BLACK = world.BLACK
@@ -178,19 +176,22 @@ if __name__ == '__main__':
 	screen = pygame.display.set_mode(WINDOW_SIZE)
 	pygame.display.set_caption("wandering renge")
 	clock = pygame.time.Clock()
+	particle = None
+	update_flag = None
 
+	#initialize images and place image at random location
 	im = pygame.image.load('renge.png').convert_alpha()
 	rect = im.get_rect()
 	init_x = random.randint(0,WIDTH/2)
 	init_y = random.randint(0,HEIGHT)
 	rect.center = (init_x,init_y)
-
 	renge = Renge(world.landmarks)
-	particle_filter = ParticleFilter(world.landmarks,5,5) #2.0, 6.0
 
-	particle = None
-	update_flag = False
+	#Initialize particle filter and set noise
+	particle_filter = ParticleFilter(world.landmarks,10,10) #2.0, 6.0
+
 	while True:
+		#display event
 		pygame.display.update()
 		clock.tick(60)
 		screen.fill(BLACK)
@@ -204,17 +205,19 @@ if __name__ == '__main__':
 					pygame.quit()
 					sys.exit()
 
+		#key event
 		pressed_key = pygame.key.get_pressed()
 		motion = [0,0]
 		if pressed_key[pygame.K_LEFT]: rect.move_ip(-1,0); update_flag = True; motion = [-1, 0]
 		if pressed_key[pygame.K_RIGHT]: rect.move_ip(1,0); update_flag = True; motion = [1, 0]
 		if pressed_key[pygame.K_UP]: rect.move_ip(0, -1); update_flag = True; motion = [ 0, -1]
 		if pressed_key[pygame.K_DOWN]: rect.move_ip(0,1); update_flag = True; motion = [ 0, 1]
-
+		
+		#draw world
 		world.draw_world()
 
+		#update particles
 		measurement = world.get_landmarks(rect.centerx, rect.centery)
-
 		if update_flag:
 			update_flag = True
 			particle = particle_filter.update(motion, measurement)
@@ -224,12 +227,15 @@ if __name__ == '__main__':
 			print 'estim: ' + str(int(pos[0]))  + ' ' + str(int(pos[1]))
 			print 'accuracy ' + str(particle_filter.check_output([rect.centerx,rect.centery], pos))
 
-		if rect.centerx > 350-5: rect.centerx = 350-5
-		if rect.centerx < 0: rect.centerx = 0
-		if rect.centery > WINDOW_SIZE[1]: rect.centery = WINDOW_SIZE[1]
-		if rect.centery < 0: rect.centery = 0
+		#contain movement within world
+		if not  world.WORLD.contains(rect):
+			if rect.right > world.WORLD.right: rect.right = world.WORLD.right
+			if rect.left < world.WORLD.left: rect.left = world.WORLD.left
+			if rect.bottom > world.WORLD.bottom: rect.bottom = world.WORLD.bottom
+			if rect.top < world.WORLD.top: rect.top = world.WORLD.top
 		screen.blit(im,rect)
 		
+		#display particles
 		for i in range(particle_filter.N):
 			if particle:
 				x = particle[i].x
@@ -237,7 +243,7 @@ if __name__ == '__main__':
 			else:
 				x = random.random() * WIDTH
 				y = random.random() * WIDTH
-			pygame.draw.circle(screen, (255,255,255), (int(x+WIDTH/2),int(y)),2)
-#	update_flag = True
+			if world.WORLD.collidepoint(x,y):
+				pygame.draw.circle(screen, (255,255,255), (int(x+WIDTH/2),int(y)),2)
 
 

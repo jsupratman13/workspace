@@ -125,35 +125,29 @@ class ParticleFilter(object):
 			r.set_noise(m_noise, s_noise)
 			self.p.append(r)
 
-#	def update(self,motion_list, measurement_list):
-#		for j in range(len(motion_list)):
 	def update(self,motion,measurement):
-			p2 = []
-			for i in range(self.N):
-#				p2.append(self.p[i].predicted_move(motion_list[j]))
-				p2.append(self.p[i].predicted_move(motion))
-			self.p = p2
+		p2 = []
+		for i in range(self.N):
+			p2.append(self.p[i].predicted_move(motion))
+		self.p = p2
 
 		#calc importance weight
-			w = []
-			for i in range(self.N):
-#				w.append(self.p[i].measurement_probability(measurement_list[j]))
-				w.append(self.p[i].measurement_probability(measurement))
+		w = []
+		for i in range(self.N):
+			w.append(self.p[i].measurement_probability(measurement))
 		#resampling
-			p3 = []
-			beta = 0.0
-			index = int(random.random()*self.N)
-			max_w = max(w)
-			for i in range(self.N):
-				beta += random.uniform(0,max_w)
-				while beta > w[index]:
-					beta -= w[index]
-					index = (index+1)%self.N
-				p3.append(self.p[index])
-			self.p = p3
-
-#		return self.p
-			return self.p
+		p3 = []
+		beta = 0.0
+		index = int(random.random()*self.N)
+		max_w = max(w)
+		for i in range(self.N):
+			beta += random.uniform(0,max_w)
+			while beta > w[index]:
+				beta -= w[index]
+				index = (index+1)%self.N
+			p3.append(self.p[index])
+		self.p = p3
+		return self.p
 
 	def get_position(self,p):
 		x = 0.0
@@ -167,7 +161,8 @@ class ParticleFilter(object):
 		tolerance = 15.0
 		error_x = math.fabs(current_pos[0]- estimated_pos[0])
 		error_y = math.fabs(current_pos[1]- estimated_pos[1])
-		return error_x < tolerance and error_y < tolerance
+		#return error_x < tolerance and error_y < tolerance
+		return (1-(error_x / current_pos[0]))*100
 
 if __name__ == '__main__':
 	world = WorldMap()
@@ -191,12 +186,10 @@ if __name__ == '__main__':
 	rect.center = (init_x,init_y)
 
 	renge = Renge(world.landmarks)
-	particle_filter = ParticleFilter(world.landmarks,1.0,0.4)
+	particle_filter = ParticleFilter(world.landmarks,5,5) #2.0, 6.0
 
 	particle = None
 	update_flag = False
-#	motion_list = []
-#	measurement_list = []
 	while True:
 		pygame.display.update()
 		clock.tick(60)
@@ -221,16 +214,11 @@ if __name__ == '__main__':
 		world.draw_world()
 
 		measurement = world.get_landmarks(rect.centerx, rect.centery)
-#		motion_list.append(motion)
-#		measurement_list.append(measurement)
 
 		if update_flag:
-#		if len(motion_list) > 100:
-#			particle = particle_filter.update(motion_list,measurement_list)
+			update_flag = True
 			particle = particle_filter.update(motion, measurement)
 			pos = particle_filter.get_position(particle)
-			motion_list = []
-			measurement_list = []
 			print '------------'
 			print 'truth: ' + str(rect.centerx) + ' ' + str(rect.centery)
 			print 'estim: ' + str(int(pos[0]))  + ' ' + str(int(pos[1]))
@@ -242,12 +230,14 @@ if __name__ == '__main__':
 		if rect.centery < 0: rect.centery = 0
 		screen.blit(im,rect)
 		
-		if particle:
-			for i in range(len(particle)):
+		for i in range(particle_filter.N):
+			if particle:
 				x = particle[i].x
 				y = particle[i].y
-				pygame.draw.circle(screen, (255,255,255), (int(x+WIDTH/2),int(y)),2)
-
-		update_flag = False
+			else:
+				x = random.random() * WIDTH
+				y = random.random() * WIDTH
+			pygame.draw.circle(screen, (255,255,255), (int(x+WIDTH/2),int(y)),2)
+#	update_flag = True
 
 

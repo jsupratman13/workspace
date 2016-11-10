@@ -68,7 +68,7 @@ class Search(object):
 		self.closed[0][0] = 1
 
 		#show decided path
-		self.action = grid
+		self.action = [[-1 for row in range(len(grid[0]))] for col in range(len(grid))]
 
 		#initial
 		self.g = 0
@@ -76,12 +76,49 @@ class Search(object):
 		self.y = 0
 
 		#goal
+		for y in range(len(grid[0])):
+			for x in range(len(grid)):
+				if grid[x][y] == (255,255,0):
+					self.goal = [x,y]
+
+		#movement
+		self.motions = [[-1,0],#up
+		                [0,-1],#left
+				[1, 0],#down
+				[0, 1]]#right
 
 	def dijkstra(self):
 		g = self.g
 		x = self.x
 		y = self.y
 		open_list = [[g,x,y]]
+		found = False
+		resing = False
+		while found is False and resign is False:
+			if open_list:
+				open_list.sort()
+				node = open_list.pop(0)
+				g = node[0]
+				x = node[1]
+				y = node[2]
+
+				self.expand[x][y] = (0,255,255)
+				if x == self.goal[0] and y == self.goal[y]:
+					found = True
+				else:
+					for i in range(len(self.motions)):
+						x = x + self.motions[i][0]
+						y = y + self.motions[i][1]
+						if x >= 0 and x < len(self.expand) and y >= 0 and y < len(self.expand[0]):
+							if self.closed[x][y] == 0 and self.expand != (0,0,0):
+								g = g+1
+								open_list.append([g,x,y])
+								self.closed[x][y] = 1
+								self.action[x][y] = i
+			else:
+				print 'no plan found'
+				resign = True
+		return self.expand
 	
 	def greedy(self):
 		pass
@@ -115,6 +152,9 @@ if __name__ == '__main__':
 
 	update_flag = False
 	motion = [0,0]
+
+	search = Search(grid_map)
+
 	while True:
 		pygame.display.update()
 		clock.tick(60)

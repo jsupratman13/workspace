@@ -12,7 +12,7 @@
 * cons: limitation is the resolution of the grid
 
 ###Conclusion
-* If you have multimodal distribution use particle filter is you can
+* If you have multimodal distribution use particle filter if you can
 * Continous space with unimodal distribution use kalman filter
 * Switch between filter is not used oftern. The switch can cause moment of uncertainty and that is deadly in robotics
 * Mix filter -> Rao-Blackwwellized filter

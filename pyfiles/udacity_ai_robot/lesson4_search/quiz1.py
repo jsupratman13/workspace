@@ -67,6 +67,8 @@ def search(grid, init, goal, cost):
 
 		close_list.append(node)
 						
+	
+
 
 	return 'failed to find path'
 	#return path

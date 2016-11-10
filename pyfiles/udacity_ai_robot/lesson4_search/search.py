@@ -16,9 +16,15 @@
 #	1 = Occupied Space
 
 grid = [[0, 0, 1, 0, 0, 0],
-	[0, 0, 1, 0, 0, 0],
+	[0, 1, 1, 0, 0, 0],
 	[0, 0, 0, 0, 1, 0],
 	[0, 0, 1, 1, 1, 0],
+	[0, 0, 0, 0, 1, 0]]
+
+grid = [[0, 1, 0, 0, 0, 0],
+	[0, 1, 0, 0, 0, 0],
+	[0, 1, 0, 0, 0, 0],
+	[0, 1, 0, 0, 0, 0],
 	[0, 0, 0, 0, 1, 0]]
 
 init = [0,0]
@@ -62,7 +68,7 @@ def search(grid, init, goal, cost):
 		#check if we still have elements on the open list
 		if len(open) == 0:
 			resign = True
-			print 'fail'
+			print 'no optimal path found'
 		
 		else:
 			#remove node from list
@@ -102,12 +108,13 @@ def search(grid, init, goal, cost):
 	x = goal[0]
 	y = goal[1]
 	path[x][y] = '*'
-	while x!= init[0] or y != init[1]:
-		x2 = x - delta[action[x][y]][0]
-		y2 = y - delta[action[x][y]][1]
-		path[x2][y2] = delta_name[action[x][y]]
-		x = x2
-		y = y2
+	if found:
+		while x!= init[0] or y != init[1]:
+			x2 = x - delta[action[x][y]][0]
+			y2 = y - delta[action[x][y]][1]
+			path[x2][y2] = delta_name[action[x][y]]
+			x = x2
+			y = y2
 	return expand, path
 
 if __name__ == '__main__':

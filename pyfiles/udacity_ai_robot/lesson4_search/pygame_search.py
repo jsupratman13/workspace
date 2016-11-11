@@ -9,7 +9,7 @@ class Grid(object):
 		self.WHITE = (255,255,255)
 		self.GREEN = (0,255,0)
 		self.RED = (255,0,0)
-		self.BLUE = (0,0,255)
+		self.BLUE = (0,255,255)
 		self.YELLOW = (255,255,0)
 
 		self.MARGIN = 5
@@ -18,24 +18,54 @@ class Grid(object):
 		self.WINDOW_SIZE = []
 		self.grid_map = []
 
+	def horizontal(self, column, row):
+		x = self.coordinateX(column)
+		y = self.coordinateY(row)
+		pygame.draw.line(screen,self.RED,[x,y+(self.HEIGHT/2)],[x+self.WIDTH,y+(self.HEIGHT/2)], 2)
+	
+	def vertical(self, column, row):
+		x = self.coordinateX(column)
+		y = self.coordinateY(row)
+		pygame.draw.line(screen,self.RED,[x+(self.WIDTH/2),y],[x+(self.WIDTH/2),y+self.HEIGHT], 2)
+
+	def left_down(self,column,row):
+		x = self.coordinateX(column)
+		y = self.coordinateY(row)
+		pygame.draw.line(screen,self.RED,[x,y+(self.HEIGHT/2)],[x+(self.WIDTH/2),y+(self.HEIGHT/2)], 2)
+		pygame.draw.line(screen,self.RED,[x+(self.WIDTH/2),y+(self.HEIGHT/2)],[x+(self.WIDTH/2),y+self.HEIGHT], 2)
+
+	def left_up(self,column,row):
+		x = self.coordinateX(column)
+		y = self.coordinateY(row)
+		pygame.draw.line(screen,self.RED,[x,y+(self.HEIGHT/2)],[x+(self.WIDTH/2),y+(self.HEIGHT/2)], 2)
+		pygame.draw.line(screen,self.RED,[x+(self.WIDTH/2),y+(self.HEIGHT/2)],[x+(self.WIDTH/2),y], 2)
+
+	def right_up(self,column,row):
+		x = self.coordinateX(column)
+		y = self.coordinateY(row)
+		pygame.draw.line(screen,self.RED,[x+self.WIDTH,y+(self.HEIGHT/2)],[x+(self.WIDTH/2),(y+self.HEIGHT/2)], 2)
+		pygame.draw.line(screen,self.RED,[x+(self.WIDTH/2),y+(self.HEIGHT/2)],[x+(self.WIDTH/2),y], 2)
+
+	def right_down(self,column,row):
+		x = self.coordinateX(column)
+		y = self.coordinateY(row)
+		pygame.draw.line(screen,self.RED,[x+self.WIDTH,y+(self.HEIGHT/2)],[x+(self.WIDTH/2),y+(self.HEIGHT/2)], 2)
+		pygame.draw.line(screen,self.RED,[x+(self.WIDTH/2),y+(self.HEIGHT/2)],[x+(self.WIDTH/2),y+self.HEIGHT], 2)
+
 	def coordinateX(self, column):
 		return (self.MARGIN+self.WIDTH)*column+self.MARGIN
 
 	def coordinateY(self,row):
 		return (self.MARGIN+self.HEIGHT)*row+self.MARGIN
 
-	def get_color(self,x,y):
-		for row in range(len(grid_map)):
-			for column in range(len(grid_map[0])):
-				cell = pygame.Rect([self.coordinateX(column),self.coordinateY(row), self.WIDTH, self.HEIGHT])
-				if cell.collidepoint(x,y):
-					return grid_map[row][column]
-
-	def draw_grid(self):
-		for row in range(len(grid_map)):
-			for column in range(len(grid_map[0])):
-				color = grid_map[row][column]
+	def draw_grid(self,grid=None):
+		if grid:
+			self.grid_map = grid
+		for row in range(len(self.grid_map)):
+			for column in range(len(self.grid_map[0])):
+				color = self.grid_map[row][column]
 				pygame.draw.rect(screen,color, pygame.Rect([self.coordinateX(column),self.coordinateY(row),self.WIDTH,self.HEIGHT]))
+				self.right_down(column,row)
 
 	def use_grid(self):
 		W = self.WHITE
@@ -43,10 +73,10 @@ class Grid(object):
 		B = self.BLACK
 		
 		grid_map = [[W,B,W,W,W,W],
-                            [W,B,W,W,W,W],
-                            [W,B,W,W,W,W],
-                            [W,B,W,W,W,W],
-			    [W,W,W,W,B,Y]]
+					[W,B,W,W,W,W], 
+					[W,B,W,W,W,W],
+					[W,B,W,W,W,W],
+					[W,W,W,W,B,Y]]
 		self.grid_map = grid_map
 		return grid_map
 	
@@ -59,16 +89,20 @@ class Grid(object):
 
 class Search(object):
 	def __init__(self, grid):
+		self.grid = grid.grid_map
+		self.BLACK = grid.BLACK
+		self.BLUE = grid.BLUE
+
 		#search area
-		self.expand = grid
+		self.expand = self.grid
 		self.frontier = 0
 
 		#close list to prevent node from being searched again open:0, close:1
-		self.closed = [[0 for row in range(len(grid[0]))] for col in range(len(grid))]
+		self.closed = [[0 for row in range(len(self.grid[0]))] for col in range(len(self.grid))]
 		self.closed[0][0] = 1
 
 		#show decided path
-		self.action = [[-1 for row in range(len(grid[0]))] for col in range(len(grid))]
+		self.action = [[-1 for row in range(len(self.grid[0]))] for col in range(len(self.grid))]
 
 		#initial
 		self.g = 0
@@ -76,16 +110,16 @@ class Search(object):
 		self.y = 0
 
 		#goal
-		for y in range(len(grid[0])):
-			for x in range(len(grid)):
-				if grid[x][y] == (255,255,0):
+		for y in range(len(self.grid[0])):
+			for x in range(len(self.grid)):
+				if self.grid[x][y] == (255,255,0):
 					self.goal = [x,y]
 
 		#movement
 		self.motions = [[-1,0],#up
-		                [0,-1],#left
-				[1, 0],#down
-				[0, 1]]#right
+						[0,-1],#left
+						[1, 0],#down
+						[0, 1]]#right
 
 	def dijkstra(self):
 		g = self.g
@@ -93,7 +127,7 @@ class Search(object):
 		y = self.y
 		open_list = [[g,x,y]]
 		found = False
-		resing = False
+		resign = False
 		while found is False and resign is False:
 			if open_list:
 				open_list.sort()
@@ -101,20 +135,21 @@ class Search(object):
 				g = node[0]
 				x = node[1]
 				y = node[2]
-
-				self.expand[x][y] = (0,255,255)
-				if x == self.goal[0] and y == self.goal[y]:
+				
+				self.expand[x][y] = self.BLUE
+				if x == self.goal[0] and y == self.goal[1]:
+					print node
 					found = True
 				else:
 					for i in range(len(self.motions)):
-						x = x + self.motions[i][0]
-						y = y + self.motions[i][1]
-						if x >= 0 and x < len(self.expand) and y >= 0 and y < len(self.expand[0]):
-							if self.closed[x][y] == 0 and self.expand != (0,0,0):
+						x2 = x + self.motions[i][0]
+						y2 = y + self.motions[i][1]
+						if x2 >= 0 and x2 < len(self.expand) and y2 >= 0 and y2 < len(self.expand[0]):
+							if self.closed[x2][y2] == 0 and self.expand[x2][y2] != self.BLACK:
 								g = g+1
-								open_list.append([g,x,y])
-								self.closed[x][y] = 1
-								self.action[x][y] = i
+								open_list.append([g,x2,y2])
+								self.closed[x2][y2] = 1
+								self.action[x2][y2] = i
 			else:
 				print 'no plan found'
 				resign = True
@@ -153,7 +188,7 @@ if __name__ == '__main__':
 	update_flag = False
 	motion = [0,0]
 
-	search = Search(grid_map)
+	search = Search(grid)
 
 	while True:
 		pygame.display.update()
@@ -164,24 +199,19 @@ if __name__ == '__main__':
 				pygame.quit()
 				sys.exit()
 			if event.type == pygame.KEYDOWN:
-				update_flag = True
 				if event.key == pygame.K_ESCAPE:
 					pygame.quit()
 					sys.exit()
-				if event.key == pygame.K_LEFT: rect.move_ip(-WIDTH-MARGIN,0); motion = [0,-1]
-				elif event.key == pygame.K_RIGHT: rect.move_ip(WIDTH+MARGIN,0); motion = [0, 1]
-				elif event.key == pygame.K_UP: rect.move_ip(0,-HEIGHT-MARGIN); motion = [-1, 0]
-				elif event.key == pygame.K_DOWN: rect.move_ip(0,HEIGHT+MARGIN); motion = [1, 0]
-				else: motion = [0,0]
-		grid.draw_grid()
-
-		if rect.centerx > WINDOW_SIZE[0]: rect.centerx = (grid.coordinateX(0)+WIDTH/2)
-		if rect.centerx < 0: rect.centerx = (grid.coordinateX(len(grid_map[0])-1)+WIDTH/2)
-		if rect.centery > WINDOW_SIZE[1]: rect.centery = (grid.coordinateY(0)+HEIGHT/2)
-		if rect.centery < 0: rect.centery = (grid.coordinateY(len(grid_map)-1)+HEIGHT/2)
+				if event.key == pygame.K_d:
+					update_flag = True
+					print 'key pressed'
+					new_grid = search.dijkstra()
+		if update_flag:
+			grid.draw_grid(new_grid)
+		else:
+			grid.draw_grid()
 		screen.blit(im,rect)
 
-		update_flag = False
 
 
 

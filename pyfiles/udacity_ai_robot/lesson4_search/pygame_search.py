@@ -1,5 +1,5 @@
 import pygame
-import sys
+import sys,copy
 from random import randint
 
 class Grid(object):
@@ -58,9 +58,7 @@ class Grid(object):
 	def draw_path(self,path):
 		for row in range(len(path)):
 			for column in range(len(path[0])):
-				color = self.grid_map[row][column]
 				direction = path[row][column]
-				pygame.draw.rect(screen,color, pygame.Rect([self.coordinateX(column),self.coordinateY(row),self.WIDTH,self.HEIGHT]))
 				if direction == '^':
 					self.up(column,row)
 				elif direction == 'V':
@@ -91,10 +89,12 @@ class Grid(object):
 		return self.WINDOW_SIZE
 
 class Search(object):
-	def __init__(self, grid):
-		self.grid = grid.grid_map
-		self.BLACK = grid.BLACK
-		self.BLUE = grid.BLUE
+	def __init__(self, world):
+		self.world = world;
+		self.grid = world.grid_map
+		self.BLACK = world.BLACK
+		self.BLUE = world.BLUE
+		self.WHITE = world.WHITE
 		self.reset()
 
 	def reset(self):
@@ -114,6 +114,9 @@ class Search(object):
 		self.g = 0
 		self.x = 0
 		self.y = 0
+		#if rect:
+		#	self.x = (rect.centerx - self.world.MARGIN)/(self.world.MARGIN+self.world.HEIGHT)
+		#	self.y = (rect.centery - self.world.MARGIN)/(self.world.MARGIN+self.world.WIDTH)
 
 		#goal
 		for y in range(len(self.grid[0])):
@@ -143,11 +146,11 @@ class Search(object):
 				x = node[1]
 				y = node[2]
 				
-				#self.expand[x][y] = self.BLUE
 				if x == self.goal[0] and y == self.goal[1]:
 					print node
 					found = True
 				else:
+					self.expand[x][y] = self.BLUE
 					for i in range(len(self.motions)):
 						x2 = x + self.motions[i][0]
 						y2 = y + self.motions[i][1]
@@ -230,7 +233,7 @@ if __name__ == '__main__':
 				update_flag = True
 
 		if update_flag:
-			#grid.draw_grid(new_grid)
+			grid.draw_grid(new_grid)
 			grid.draw_path(path)
 		else:
 			grid.draw_grid()

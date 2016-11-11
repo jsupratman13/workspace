@@ -47,12 +47,10 @@ class Grid(object):
 	def coordinateY(self,row):
 		return (self.MARGIN+self.HEIGHT)*row+self.MARGIN
 
-	def draw_grid(self,grid=None):
-		if grid:
-			self.grid_map = grid
-		for row in range(len(self.grid_map)):
-			for column in range(len(self.grid_map[0])):
-				color = self.grid_map[row][column]
+	def draw_grid(self,grid):
+		for row in range(len(grid)):
+			for column in range(len(grid[0])):
+				color = grid[row][column]
 				pygame.draw.rect(screen,color, pygame.Rect([self.coordinateX(column),self.coordinateY(row),self.WIDTH,self.HEIGHT]))
 
 	def draw_path(self,path):
@@ -73,10 +71,10 @@ class Grid(object):
 		Y = self.YELLOW
 		B = self.BLACK
 		
-		grid_map = [[W,W,W,W,W,W],
-					[W,W,W,W,W,W], 
-					[W,W,W,W,W,W],
-					[W,W,W,W,W,W],
+		grid_map = [[W,B,W,W,W,W],
+					[W,B,W,W,W,W], 
+					[W,B,W,W,W,W],
+					[W,B,W,W,W,W],
 					[W,W,W,W,W,Y]]
 		self.grid_map = grid_map
 		return grid_map
@@ -91,15 +89,24 @@ class Grid(object):
 class Search(object):
 	def __init__(self, world):
 		self.world = world;
-		self.grid = world.grid_map
+		self.grid = copy.deepcopy(world.grid_map)
 		self.BLACK = world.BLACK
 		self.BLUE = world.BLUE
 		self.WHITE = world.WHITE
-		self.reset()
+		
+		#movement
+		self.motions = [[-1,0],#up
+						[0,-1],#left
+						[1, 0],#down
+						[0, 1]]#right
+		self.motion_name = ['^','<','V','>']
 
-	def reset(self):
+		self.reset(world.grid_map)
+
+	def reset(self, grid, rect=None):
 		#search area
-		self.expand = self.grid
+		self.grid = copy.deepcopy(grid)
+		self.expand = copy.deepcopy(self.grid)
 		self.frontier = 0
 
 		#close list to prevent node from being searched again open:0, close:1
@@ -124,63 +131,6 @@ class Search(object):
 				if self.grid[x][y] == (255,255,0):
 					self.goal = [x,y]
 
-		#movement
-		self.motions = [[-1,0],#up
-						[0,-1],#left
-						[1, 0],#down
-						[0, 1]]#right
-		self.motion_name = ['^','<','V','>']
-
-	def dijkstra(self):
-		f = self.g
-		g = self.g
-		x = self.x
-		y = self.y
-		#open_list = [[f,x,y,g]]
-		open_list = [[g,x,y]]
-		found = False
-		resign = False
-		while found is False and resign is False:
-			if open_list:
-				open_list.sort()
-				node = open_list.pop(0)
-				#f = node[0]
-				x = node[1]
-				y = node[2]
-				#g = node[3]
-				g = node[0]
-
-				if x == self.goal[0] and y == self.goal[1]:
-					print node
-					found = True
-				else:
-					self.expand[x][y] = self.BLUE
-					for i in range(len(self.motions)):
-						x2 = x + self.motions[i][0]
-						y2 = y + self.motions[i][1]
-						if x2 >= 0 and x2 < len(self.expand) and y2 >= 0 and y2 < len(self.expand[0]):
-							if self.closed[x2][y2] == 0 and self.expand[x2][y2] != self.BLACK:
-								#f = g + self.heuristic[x2][y2]
-								g += 1
-								#open_list.append([f,x2,y2,g])
-								open_list.append([g,x2,y2])
-								self.closed[x2][y2] = 1
-								self.action[x2][y2] = i
-			else:
-				print 'no plan found'
-				resign = True
-		x = self.goal[0]
-		y = self.goal[1]
-		self.path[x][y] = '*'
-		if found:
-			while x != self.x or y != self.y:
-				x2 = x - self.motions[self.action[x][y]][0]
-				y2 = y - self.motions[self.action[x][y]][1]
-				self.path[x2][y2] = self.motion_name[self.action[x][y]]
-				x = x2
-				y = y2
-		return self.expand, self.path
-
 	def set_heuristic(self):
 		#use euclidean distance
 		max_cost = (len(self.grid[0])+len(self.grid)) - 2
@@ -190,6 +140,113 @@ class Search(object):
 				self.heuristic[row][col] = max_cost - row
 			max_cost -= 1
 
+	def get_path(self, action=None):
+		if action:
+			self.action = action
+		x = self.goal[0]
+		y = self.goal[1]
+		self.path[x][y] = '*'
+		while x != self.x or y != self.y:
+			x2 = x - self.motions[self.action[x][y]][0]
+			y2 = y - self.motions[self.action[x][y]][1]
+			self.path[x2][y2] = self.motion_name[self.action[x][y]]
+			x = x2
+			y = y2
+		return self.path
+
+	def dijkstra(self):
+		g = self.g
+		x = self.x
+		y = self.y
+		open_list = [[g,x,y]]
+		while open_list:
+			open_list.sort()
+			node = open_list.pop(0)
+			x = node[1]
+			y = node[2]
+			g = node[0]
+
+			if x == self.goal[0] and y == self.goal[1]:
+				print node
+				return self.expand
+			else:
+				self.expand[x][y] = self.BLUE
+				for i in range(len(self.motions)):
+					x2 = x + self.motions[i][0]
+					y2 = y + self.motions[i][1]
+					if x2 >= 0 and x2 < len(self.expand) and y2 >= 0 and y2 < len(self.expand[0]):
+						if self.closed[x2][y2] == 0 and self.expand[x2][y2] != self.BLACK:
+							g += 1
+							open_list.append([g,x2,y2])
+							self.closed[x2][y2] = 1
+							self.action[x2][y2] = i
+
+		print 'no plan found'
+		return None
+
+	def greedy(self):
+		x = self.x
+		y = self.y
+		h = self.heuristic[x][y]
+		open_list = [[h,x,y]]
+		while open_list:
+			open_list.sort()
+			node = open_list.pop(0)
+			x = node[1]
+			y = node[2]
+			h = node[0]
+
+			if x == self.goal[0] and y == self.goal[1]:
+				print node
+				return self.expand
+			else:
+				self.expand[x][y] = self.BLUE
+				for i in range(len(self.motions)):
+					x2 = x + self.motions[i][0]
+					y2 = y + self.motions[i][1]
+					if x2 >= 0 and x2 < len(self.expand) and y2 >= 0 and y2 < len(self.expand[0]):
+						if self.closed[x2][y2] == 0 and self.expand[x2][y2] != self.BLACK:
+							h = self.heuristic[x2][y2]
+							open_list.append([h,x2,y2])
+							self.closed[x2][y2] = 1
+							self.action[x2][y2] = i
+
+		print 'no plan found'
+		return None
+
+	def astar(self):
+		g = self.g
+		x = self.x
+		y = self.y
+		f = g + self.heuristic[x][y]
+		open_list = [[f,x,y,g]]
+		while open_list:
+			open_list.sort()
+			node = open_list.pop(0)
+			f = node[0]
+			x = node[1]
+			y = node[2]
+			g = node[3]
+			
+			if x == self.goal[0] and y == self.goal[1]:
+				print node
+				return self.expand
+			else:
+				self.expand[x][y] = self.BLUE
+				for i in range(len(self.motions)):
+					x2 = x + self.motions[i][0]
+					y2 = y + self.motions[i][1]
+					if x2 >= 0 and x2 < len(self.expand) and y2 >= 0 and y2 < len(self.expand[0]):
+						if self.closed[x2][y2] == 0 and self.expand[x2][y2] != self.BLACK:
+							f = g + self.heuristic[x2][y2]
+							g += 1
+							open_list.append([f,x2,y2,g])
+							self.closed[x2][y2] = 1
+							self.action[x2][y2] = i
+
+		print 'no plan found'
+		return None
+	
 if __name__ == '__main__':
 	grid = Grid()
 
@@ -215,9 +272,8 @@ if __name__ == '__main__':
 	init_y = 0#randint(0,len(grid_map)-1)
 	rect.center = (pygame.Rect(grid.coordinateX(init_x),grid.coordinateY(init_y),WIDTH,HEIGHT)).center
 
-	update_flag = False
-	motion = [0,0]
 
+	expand = None
 	search = Search(grid)
 	search.set_heuristic()
 	while True:
@@ -228,16 +284,9 @@ if __name__ == '__main__':
 			if event.type == pygame.QUIT:
 				pygame.quit()
 				sys.exit()
-			if event.type == pygame.KEYDOWN:
-				if event.key == pygame.K_ESCAPE:
-					pygame.quit()
-					sys.exit()
-				if event.key == pygame.K_d:
-					new_grid, path = search.dijkstra()
-					update_flag = True
-				if event.key == pygame.K_c:
-					search.reset()
-			elif event.type == pygame.MOUSEBUTTONDOWN:
+
+			#change grid style
+			if event.type == pygame.MOUSEBUTTONDOWN:
 				pos = pygame.mouse.get_pos()
 				column = pos[0] // (WIDTH+MARGIN)
 				row = pos[1] // (WIDTH+MARGIN)
@@ -245,15 +294,31 @@ if __name__ == '__main__':
 					grid.grid_map[row][column] = WHITE
 				else:
 					grid.grid_map[row][column] = BLACK
-				new_grid, path = search.dijkstra()
-				search.reset()
-				update_flag = True
+				expand = None
+			
+			#excute command
+			if event.type == pygame.KEYDOWN:
+				search.reset(grid.grid_map)
+				if event.key == pygame.K_ESCAPE:
+					pygame.quit()
+					sys.exit()
+				if event.key == pygame.K_c:
+					expand = None
+				if event.key == pygame.K_d:
+					expand = search.dijkstra()
+					path = search.get_path()
+				if event.key == pygame.K_a:
+					expand = search.astar()
+					path = search.get_path()
+				if event.key == pygame.K_g:
+					expand = search.greedy()
+					path = search.get_path()
 
-		if update_flag:
-			grid.draw_grid(new_grid)
+		if expand:
+			grid.draw_grid(expand)
 			grid.draw_path(path)
 		else:
-			grid.draw_grid()
+			grid.draw_grid(grid.grid_map)
 
 		screen.blit(im,rect)
 

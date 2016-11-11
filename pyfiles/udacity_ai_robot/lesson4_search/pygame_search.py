@@ -2,7 +2,6 @@ import pygame
 import sys
 from random import randint
 
-
 class Grid(object):
 	def __init__(self):
 		self.BLACK = (0,0,0)
@@ -18,39 +17,29 @@ class Grid(object):
 		self.WINDOW_SIZE = []
 		self.grid_map = []
 
-	def horizontal(self, column, row):
+	def up(self,column,row):
 		x = self.coordinateX(column)
 		y = self.coordinateY(row)
-		pygame.draw.line(screen,self.RED,[x,y+(self.HEIGHT/2)],[x+self.WIDTH,y+(self.HEIGHT/2)], 2)
+		pygame.draw.line(screen,self.RED,[x,y+self.HEIGHT],[x+(self.WIDTH/2),y], 2)
+		pygame.draw.line(screen,self.RED,[x+(self.WIDTH/2),y],[x+self.WIDTH,y+self.HEIGHT], 2)
 	
-	def vertical(self, column, row):
+	def down(self, column, row):
 		x = self.coordinateX(column)
 		y = self.coordinateY(row)
-		pygame.draw.line(screen,self.RED,[x+(self.WIDTH/2),y],[x+(self.WIDTH/2),y+self.HEIGHT], 2)
+		pygame.draw.line(screen,self.RED,[x,y],[x+(self.WIDTH/2),y+self.HEIGHT], 2)
+		pygame.draw.line(screen,self.RED,[x+(self.WIDTH/2),y+self.HEIGHT],[x+self.WIDTH,y], 2)
 
-	def left_down(self,column,row):
+	def left(self, column, row):
 		x = self.coordinateX(column)
 		y = self.coordinateY(row)
-		pygame.draw.line(screen,self.RED,[x,y+(self.HEIGHT/2)],[x+(self.WIDTH/2),y+(self.HEIGHT/2)], 2)
-		pygame.draw.line(screen,self.RED,[x+(self.WIDTH/2),y+(self.HEIGHT/2)],[x+(self.WIDTH/2),y+self.HEIGHT], 2)
+		pygame.draw.line(screen,self.RED,[x,y],[x+self.WIDTH,y+(self.HEIGHT/2)], 2)
+		pygame.draw.line(screen,self.RED,[x+self.WIDTH,y+(self.HEIGHT/2)],[x,y+self.HEIGHT], 2)
 
-	def left_up(self,column,row):
+	def right(self, column, row):
 		x = self.coordinateX(column)
 		y = self.coordinateY(row)
-		pygame.draw.line(screen,self.RED,[x,y+(self.HEIGHT/2)],[x+(self.WIDTH/2),y+(self.HEIGHT/2)], 2)
-		pygame.draw.line(screen,self.RED,[x+(self.WIDTH/2),y+(self.HEIGHT/2)],[x+(self.WIDTH/2),y], 2)
-
-	def right_up(self,column,row):
-		x = self.coordinateX(column)
-		y = self.coordinateY(row)
-		pygame.draw.line(screen,self.RED,[x+self.WIDTH,y+(self.HEIGHT/2)],[x+(self.WIDTH/2),(y+self.HEIGHT/2)], 2)
-		pygame.draw.line(screen,self.RED,[x+(self.WIDTH/2),y+(self.HEIGHT/2)],[x+(self.WIDTH/2),y], 2)
-
-	def right_down(self,column,row):
-		x = self.coordinateX(column)
-		y = self.coordinateY(row)
-		pygame.draw.line(screen,self.RED,[x+self.WIDTH,y+(self.HEIGHT/2)],[x+(self.WIDTH/2),y+(self.HEIGHT/2)], 2)
-		pygame.draw.line(screen,self.RED,[x+(self.WIDTH/2),y+(self.HEIGHT/2)],[x+(self.WIDTH/2),y+self.HEIGHT], 2)
+		pygame.draw.line(screen,self.RED,[x+self.WIDTH,y],[x,y+(self.HEIGHT/2)], 2)
+		pygame.draw.line(screen,self.RED,[x,y+(self.HEIGHT/2)],[x+self.WIDTH,y+self.HEIGHT], 2)
 
 	def coordinateX(self, column):
 		return (self.MARGIN+self.WIDTH)*column+self.MARGIN
@@ -65,18 +54,32 @@ class Grid(object):
 			for column in range(len(self.grid_map[0])):
 				color = self.grid_map[row][column]
 				pygame.draw.rect(screen,color, pygame.Rect([self.coordinateX(column),self.coordinateY(row),self.WIDTH,self.HEIGHT]))
-				self.right_down(column,row)
+
+	def draw_path(self,path):
+		for row in range(len(path)):
+			for column in range(len(path[0])):
+				color = self.grid_map[row][column]
+				direction = path[row][column]
+				pygame.draw.rect(screen,color, pygame.Rect([self.coordinateX(column),self.coordinateY(row),self.WIDTH,self.HEIGHT]))
+				if direction == '^':
+					self.up(column,row)
+				elif direction == 'V':
+					self.down(column,row)
+				elif direction == '<':
+					self.right(column,row)
+				elif direction == '>':
+					self.left(column,row)
 
 	def use_grid(self):
 		W = self.WHITE
 		Y = self.YELLOW
 		B = self.BLACK
 		
-		grid_map = [[W,B,W,W,W,W],
-					[W,B,W,W,W,W], 
-					[W,B,W,W,W,W],
-					[W,B,W,W,W,W],
-					[W,W,W,W,B,Y]]
+		grid_map = [[W,W,W,W,W,W],
+					[W,W,W,W,W,W], 
+					[W,W,W,W,W,W],
+					[W,W,W,W,W,W],
+					[W,W,W,W,W,Y]]
 		self.grid_map = grid_map
 		return grid_map
 	
@@ -92,7 +95,9 @@ class Search(object):
 		self.grid = grid.grid_map
 		self.BLACK = grid.BLACK
 		self.BLUE = grid.BLUE
+		self.reset()
 
+	def reset(self):
 		#search area
 		self.expand = self.grid
 		self.frontier = 0
@@ -103,6 +108,7 @@ class Search(object):
 
 		#show decided path
 		self.action = [[-1 for row in range(len(self.grid[0]))] for col in range(len(self.grid))]
+		self.path = [[' ' for row in range(len(self.grid[0]))] for col in range(len(self.grid))]
 
 		#initial
 		self.g = 0
@@ -120,6 +126,7 @@ class Search(object):
 						[0,-1],#left
 						[1, 0],#down
 						[0, 1]]#right
+		self.motion_name = ['^','<','V','>']
 
 	def dijkstra(self):
 		g = self.g
@@ -136,7 +143,7 @@ class Search(object):
 				x = node[1]
 				y = node[2]
 				
-				self.expand[x][y] = self.BLUE
+				#self.expand[x][y] = self.BLUE
 				if x == self.goal[0] and y == self.goal[1]:
 					print node
 					found = True
@@ -153,19 +160,23 @@ class Search(object):
 			else:
 				print 'no plan found'
 				resign = True
-		return self.expand
+		x = self.goal[0]
+		y = self.goal[1]
+		self.path[x][y] = '*'
+		if found:
+			while x != self.x or y != self.y:
+				x2 = x - self.motions[self.action[x][y]][0]
+				y2 = y - self.motions[self.action[x][y]][1]
+				self.path[x2][y2] = self.motion_name[self.action[x][y]]
+				x = x2
+				y = y2
+		return self.expand, self.path
 	
-	def greedy(self):
-		pass
-
-	def astar(self):
-		pass
-
-
 if __name__ == '__main__':
 	grid = Grid()
 	
 	BLACK = grid.BLACK
+	WHITE = grid.WHITE
 	WIDTH = grid.WIDTH
 	HEIGHT = grid.HEIGHT
 	MARGIN = grid.MARGIN
@@ -203,15 +214,27 @@ if __name__ == '__main__':
 					pygame.quit()
 					sys.exit()
 				if event.key == pygame.K_d:
+					new_grid, path = search.dijkstra()
+					search.reset()
 					update_flag = True
-					print 'key pressed'
-					new_grid = search.dijkstra()
+			elif event.type == pygame.MOUSEBUTTONDOWN:
+				pos = pygame.mouse.get_pos()
+				column = pos[0] // (WIDTH+MARGIN)
+				row = pos[1] // (WIDTH+MARGIN)
+				if grid.grid_map[row][column] == BLACK:
+					grid.grid_map[row][column] = WHITE
+				else:
+					grid.grid_map[row][column] = BLACK
+				new_grid, path = search.dijkstra()
+				search.reset()
+				update_flag = True
+
 		if update_flag:
-			grid.draw_grid(new_grid)
+			#grid.draw_grid(new_grid)
+			grid.draw_path(path)
 		else:
 			grid.draw_grid()
 		screen.blit(im,rect)
-
 
 
 

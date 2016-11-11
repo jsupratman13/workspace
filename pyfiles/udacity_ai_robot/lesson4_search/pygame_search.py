@@ -132,9 +132,11 @@ class Search(object):
 		self.motion_name = ['^','<','V','>']
 
 	def dijkstra(self):
+		f = self.g
 		g = self.g
 		x = self.x
 		y = self.y
+		#open_list = [[f,x,y,g]]
 		open_list = [[g,x,y]]
 		found = False
 		resign = False
@@ -142,10 +144,12 @@ class Search(object):
 			if open_list:
 				open_list.sort()
 				node = open_list.pop(0)
-				g = node[0]
+				#f = node[0]
 				x = node[1]
 				y = node[2]
-				
+				#g = node[3]
+				g = node[0]
+
 				if x == self.goal[0] and y == self.goal[1]:
 					print node
 					found = True
@@ -156,7 +160,9 @@ class Search(object):
 						y2 = y + self.motions[i][1]
 						if x2 >= 0 and x2 < len(self.expand) and y2 >= 0 and y2 < len(self.expand[0]):
 							if self.closed[x2][y2] == 0 and self.expand[x2][y2] != self.BLACK:
-								g = g+1
+								#f = g + self.heuristic[x2][y2]
+								g += 1
+								#open_list.append([f,x2,y2,g])
 								open_list.append([g,x2,y2])
 								self.closed[x2][y2] = 1
 								self.action[x2][y2] = i
@@ -174,10 +180,20 @@ class Search(object):
 				x = x2
 				y = y2
 		return self.expand, self.path
-	
+
+	def set_heuristic(self):
+		#use euclidean distance
+		max_cost = (len(self.grid[0])+len(self.grid)) - 2
+		self.heuristic = [[1000 for row in range(len(self.grid[0]))] for col in range(len(self.grid))]
+		for col in range(len(self.grid[0])):
+			for row in range(len(self.grid)):
+				self.heuristic[row][col] = max_cost - row
+			max_cost -= 1
+
 if __name__ == '__main__':
 	grid = Grid()
-	
+
+	YELLOW = grid.YELLOW
 	BLACK = grid.BLACK
 	WHITE = grid.WHITE
 	WIDTH = grid.WIDTH
@@ -203,7 +219,7 @@ if __name__ == '__main__':
 	motion = [0,0]
 
 	search = Search(grid)
-
+	search.set_heuristic()
 	while True:
 		pygame.display.update()
 		clock.tick(60)
@@ -218,8 +234,9 @@ if __name__ == '__main__':
 					sys.exit()
 				if event.key == pygame.K_d:
 					new_grid, path = search.dijkstra()
-					search.reset()
 					update_flag = True
+				if event.key == pygame.K_c:
+					search.reset()
 			elif event.type == pygame.MOUSEBUTTONDOWN:
 				pos = pygame.mouse.get_pos()
 				column = pos[0] // (WIDTH+MARGIN)
@@ -237,6 +254,7 @@ if __name__ == '__main__':
 			grid.draw_path(path)
 		else:
 			grid.draw_grid()
+
 		screen.blit(im,rect)
 
 

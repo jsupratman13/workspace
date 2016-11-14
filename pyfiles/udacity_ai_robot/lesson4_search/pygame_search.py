@@ -78,7 +78,13 @@ class Grid(object):
 					[W,W,W,W,W,W]]
 		self.grid_map = grid_map
 		return grid_map
-	
+
+	def use_grid2(self):
+		W = self.WHITE
+		grid_map = [[W for col in range(10)] for row in range(10)]
+		self.grid_map = grid_map
+		return grid_map
+
 	def fit_window_to_grid(self):
 		WIDTH = self.WIDTH
 		HEIGHT = self.HEIGHT
@@ -263,7 +269,7 @@ if __name__ == '__main__':
 	HEIGHT = grid.HEIGHT
 	MARGIN = grid.MARGIN
 	
-	grid_map = grid.use_grid()
+	grid_map = grid.use_grid2()
 
 	pygame.init()
 	

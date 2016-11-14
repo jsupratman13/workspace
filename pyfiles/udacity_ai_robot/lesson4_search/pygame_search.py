@@ -1,5 +1,5 @@
 import pygame
-import sys,copy
+import sys,copy,math
 from random import randint
 
 class Grid(object):
@@ -75,7 +75,7 @@ class Grid(object):
 					[W,B,W,W,W,W], 
 					[W,B,W,W,W,W],
 					[W,B,W,W,W,W],
-					[W,W,W,W,W,Y]]
+					[W,W,W,W,W,W]]
 		self.grid_map = grid_map
 		return grid_map
 	
@@ -101,44 +101,38 @@ class Search(object):
 						[0, 1]]#right
 		self.motion_name = ['^','<','V','>']
 
-		self.reset(world.grid_map)
-
-	def reset(self, grid, rect=None):
+	def reset(self, grid,start=None, goal=None):
 		#search area
 		self.grid = copy.deepcopy(grid)
 		self.expand = copy.deepcopy(self.grid)
-		self.frontier = 0
+		self.frontier = [[0 for row in range(len(self.grid[0]))] for col in range(len(self.grid))]
 
+		#initial
+		self.g = 0
+		if start:
+			self.x = (rect.centery - self.world.MARGIN)/(self.world.MARGIN+self.world.HEIGHT)
+			self.y = (rect.centerx - self.world.MARGIN)/(self.world.MARGIN+self.world.WIDTH)
+
+		#goal
+		if goal:
+			goal_x = (goal.centery - self.world.MARGIN)/(self.world.MARGIN + self.world.HEIGHT)
+			goal_y = (goal.centerx - self.world.MARGIN)/(self.world.MARGIN + self.world.WIDTH)
+		self.goal = [goal_x,goal_y]
+	
 		#close list to prevent node from being searched again open:0, close:1
 		self.closed = [[0 for row in range(len(self.grid[0]))] for col in range(len(self.grid))]
-		self.closed[0][0] = 1
+		self.closed[self.x][self.y] = 1
 
 		#show decided path
 		self.action = [[-1 for row in range(len(self.grid[0]))] for col in range(len(self.grid))]
 		self.path = [[' ' for row in range(len(self.grid[0]))] for col in range(len(self.grid))]
 
-		#initial
-		self.g = 0
-		self.x = 0
-		self.y = 0
-		#if rect:
-		#	self.x = (rect.centerx - self.world.MARGIN)/(self.world.MARGIN+self.world.HEIGHT)
-		#	self.y = (rect.centery - self.world.MARGIN)/(self.world.MARGIN+self.world.WIDTH)
-
-		#goal
-		for y in range(len(self.grid[0])):
-			for x in range(len(self.grid)):
-				if self.grid[x][y] == (255,255,0):
-					self.goal = [x,y]
-
 	def set_heuristic(self):
 		#use euclidean distance
-		max_cost = (len(self.grid[0])+len(self.grid)) - 2
 		self.heuristic = [[1000 for row in range(len(self.grid[0]))] for col in range(len(self.grid))]
 		for col in range(len(self.grid[0])):
 			for row in range(len(self.grid)):
-				self.heuristic[row][col] = max_cost - row
-			max_cost -= 1
+				self.heuristic[row][col] = math.fabs(self.goal[0]-row) + math.fabs(self.goal[1]-col)
 
 	def get_path(self, action=None):
 		if action:
@@ -159,6 +153,7 @@ class Search(object):
 		x = self.x
 		y = self.y
 		open_list = [[g,x,y]]
+#		index = 0
 		while open_list:
 			open_list.sort()
 			node = open_list.pop(0)
@@ -166,8 +161,12 @@ class Search(object):
 			y = node[2]
 			g = node[0]
 
+#			index += 1
+#			self.frontier[x][y] = index
 			if x == self.goal[0] and y == self.goal[1]:
 				print node
+#				for c in self.frontier:
+#					print c
 				return self.expand
 			else:
 				self.expand[x][y] = self.BLUE
@@ -180,7 +179,6 @@ class Search(object):
 							open_list.append([g,x2,y2])
 							self.closed[x2][y2] = 1
 							self.action[x2][y2] = i
-
 		print 'no plan found'
 		return None
 
@@ -210,7 +208,6 @@ class Search(object):
 							open_list.append([h,x2,y2])
 							self.closed[x2][y2] = 1
 							self.action[x2][y2] = i
-
 		print 'no plan found'
 		return None
 
@@ -243,7 +240,6 @@ class Search(object):
 							open_list.append([f,x2,y2,g])
 							self.closed[x2][y2] = 1
 							self.action[x2][y2] = i
-
 		print 'no plan found'
 		return None
 	
@@ -268,50 +264,73 @@ if __name__ == '__main__':
 
 	im = pygame.image.load('renge.png').convert_alpha()
 	rect = im.get_rect()
-	init_x = 0#randint(0,len(grid_map[0])-1)
-	init_y = 0#randint(0,len(grid_map)-1)
+	init_x = 0
+	init_y = 0
 	rect.center = (pygame.Rect(grid.coordinateX(init_x),grid.coordinateY(init_y),WIDTH,HEIGHT)).center
 
+	im2 = pygame.image.load('star.png').convert_alpha()
+	im2 = pygame.transform.scale(im2, (WIDTH, HEIGHT))
+	rect2 = im2.get_rect()
+	init_x = len(grid_map[0])-1
+	init_y = len(grid_map)-1
+	rect2.center = (pygame.Rect(grid.coordinateX(init_x), grid.coordinateY(init_y), WIDTH, HEIGHT)).center
 
 	expand = None
 	search = Search(grid)
-	search.set_heuristic()
+	obs_flag = None
+	pos_flag = None
 	while True:
 		pygame.display.update()
 		clock.tick(60)
 		screen.fill(BLACK)
+
+		mouse_pressed = pygame.mouse.get_pressed()
+		if mouse_pressed[0]:
+			expand = None
+			x,y = pygame.mouse.get_pos()
+			column = x // (WIDTH+MARGIN)
+			row = y // (HEIGHT+MARGIN)
+			if rect.collidepoint(x,y):
+				pos_flag = rect
+				rect.center = (x,y)
+			elif rect2.collidepoint(x,y):	
+				pos_flag = rect2
+				rect2.center = (x,y)
+				pass
+			else:
+				if grid.grid_map[row][column] == BLACK and not obs_flag:
+					obs_flag = WHITE
+				elif grid.grid_map[row][column] == WHITE and not obs_flag:
+					obs_flag = BLACK
+			if obs_flag:
+				grid.grid_map[row][column] = obs_flag
+		else:
+			if pos_flag:
+				pos_flag.center = (pygame.Rect(grid.coordinateX(column), grid.coordinateY(row),WIDTH,HEIGHT)).center
+			obs_flag = None
+			pos_flag = None
+
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				pygame.quit()
 				sys.exit()
 
-			#change grid style
-			if event.type == pygame.MOUSEBUTTONDOWN:
-				pos = pygame.mouse.get_pos()
-				column = pos[0] // (WIDTH+MARGIN)
-				row = pos[1] // (WIDTH+MARGIN)
-				if grid.grid_map[row][column] == BLACK:
-					grid.grid_map[row][column] = WHITE
-				else:
-					grid.grid_map[row][column] = BLACK
-				expand = None
-			
 			#excute command
 			if event.type == pygame.KEYDOWN:
-				search.reset(grid.grid_map)
+				search.reset(grid.grid_map,start=rect,goal=rect2)
+				expand = None
 				if event.key == pygame.K_ESCAPE:
 					pygame.quit()
 					sys.exit()
-				if event.key == pygame.K_c:
-					expand = None
 				if event.key == pygame.K_d:
 					expand = search.dijkstra()
-					path = search.get_path()
 				if event.key == pygame.K_a:
+					search.set_heuristic()
 					expand = search.astar()
-					path = search.get_path()
 				if event.key == pygame.K_g:
+					search.set_heuristic()
 					expand = search.greedy()
+				if expand:
 					path = search.get_path()
 
 		if expand:
@@ -321,6 +340,7 @@ if __name__ == '__main__':
 			grid.draw_grid(grid.grid_map)
 
 		screen.blit(im,rect)
+		screen.blit(im2,rect2)
 
 
 

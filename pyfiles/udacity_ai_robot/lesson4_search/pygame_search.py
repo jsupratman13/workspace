@@ -86,6 +86,13 @@ class Grid(object):
 		self.WINDOW_SIZE = [len(grid_map[0])*(WIDTH+MARGIN)+MARGIN, len(grid_map)*(HEIGHT+MARGIN)+MARGIN]
 		return self.WINDOW_SIZE
 
+	def grid_animation(self, grid):
+		self.draw_grid(grid)
+		screen.blit(im,rect)
+		screen.blit(im2,rect2)
+		pygame.display.update()
+		pygame.time.delay(100)
+
 class Search(object):
 	def __init__(self, world):
 		self.world = world;
@@ -132,7 +139,7 @@ class Search(object):
 		self.heuristic = [[1000 for row in range(len(self.grid[0]))] for col in range(len(self.grid))]
 		for col in range(len(self.grid[0])):
 			for row in range(len(self.grid)):
-				self.heuristic[row][col] = math.fabs(self.goal[0]-row) + math.fabs(self.goal[1]-col)
+				self.heuristic[row][col] = abs(self.goal[0]-row) + abs(self.goal[1]-col)
 
 	def get_path(self, action=None):
 		if action:
@@ -170,6 +177,7 @@ class Search(object):
 				return self.expand
 			else:
 				self.expand[x][y] = self.BLUE
+				self.world.grid_animation(self.expand)
 				for i in range(len(self.motions)):
 					x2 = x + self.motions[i][0]
 					y2 = y + self.motions[i][1]
@@ -199,6 +207,7 @@ class Search(object):
 				return self.expand
 			else:
 				self.expand[x][y] = self.BLUE
+				self.world.grid_animation(self.expand)
 				for i in range(len(self.motions)):
 					x2 = x + self.motions[i][0]
 					y2 = y + self.motions[i][1]
@@ -230,6 +239,7 @@ class Search(object):
 				return self.expand
 			else:
 				self.expand[x][y] = self.BLUE
+				self.world.grid_animation(self.expand)
 				for i in range(len(self.motions)):
 					x2 = x + self.motions[i][0]
 					y2 = y + self.motions[i][1]
@@ -284,6 +294,7 @@ if __name__ == '__main__':
 		clock.tick(60)
 		screen.fill(BLACK)
 
+		#change grid
 		mouse_pressed = pygame.mouse.get_pressed()
 		if mouse_pressed[0]:
 			expand = None
@@ -310,6 +321,7 @@ if __name__ == '__main__':
 			obs_flag = None
 			pos_flag = None
 
+		#key command
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				pygame.quit()
@@ -322,11 +334,14 @@ if __name__ == '__main__':
 				if event.key == pygame.K_ESCAPE:
 					pygame.quit()
 					sys.exit()
+				#press d for dijkstra
 				if event.key == pygame.K_d:
 					expand = search.dijkstra()
+				#press a for astar
 				if event.key == pygame.K_a:
 					search.set_heuristic()
 					expand = search.astar()
+				#press g for greedy
 				if event.key == pygame.K_g:
 					search.set_heuristic()
 					expand = search.greedy()

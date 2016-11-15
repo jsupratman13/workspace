@@ -35,3 +35,17 @@ etc
 * f = g+h
 * same as dijkstra except we find lowest h
 * careful not to accumulate h. For next f, g = current g + past g but h is only the current h. F is not carried over to next iteration.
+
+##Dynamic Programming
+* in Reality, enviornment is stochastic, outcome of action are non-deteministic (when moving, you might end going to places that are not optimal due to situation)
+* instead of astar(only one path to the goal) you need optimal path for any other location (anywhere)
+* in grid map, each grid cell have policy: function that maps the grid cell into action
+
+###Value Function
+* associates to each grid cell the length of the shortest path to the goal
+```
+f(x,y) = min(f(x'y')) + 1
+```
+
+
+

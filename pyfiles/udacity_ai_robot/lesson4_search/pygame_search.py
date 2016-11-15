@@ -161,6 +161,56 @@ class Search(object):
 			y = y2
 		return self.path
 
+	def breadthfirst(self):
+		x = self.x
+		y = self.y
+		open_list = [[x,y]]
+		while open_list:
+			node = open_list.pop(0)
+			x = node[0]
+			y = node[1]
+
+			if x == self.goal[0] and y == self.goal[1]:
+				return self.expand
+			else:
+				self.expand[x][y] = self.BLUE
+				self.world.grid_animation(self.expand)
+				for i in range(len(self.motions)):
+					x2 = x + self.motions[i][0]
+					y2 = y + self.motions[i][1]
+					if x2 >= 0 and x2 < len(self.expand) and y2 >= 0 and y2 < len(self.expand[0]):
+						if self.closed[x2][y2] == 0 and self.expand[x2][y2] != self.BLACK:
+							open_list.append([x2,y2])
+							self.closed[x2][y2] = 1
+							self.action[x2][y2] = i
+		print 'no plan found'
+		return None
+
+	def depthfirst(self):
+		x = self.x
+		y = self.y
+		open_list = [[x,y]]
+		while open_list:
+			node = open_list.pop()
+			x = node[0]
+			y = node[1]
+
+			if x == self.goal[0] and y == self.goal[1]:
+				return self.expand
+			else:
+				self.expand[x][y] = self.BLUE
+				self.world.grid_animation(self.expand)
+				for i in range(len(self.motions)):
+					x2 = x + self.motions[i][0]
+					y2 = y + self.motions[i][1]
+					if x2 >= 0 and x2 < len(self.expand) and y2 >= 0 and y2 < len(self.expand[0]):
+						if self.closed[x2][y2] == 0 and self.expand[x2][y2] != self.BLACK:
+							open_list.append([x2,y2])
+							self.closed[x2][y2] = 1
+							self.action[x2][y2] = i
+		print 'no plan found'
+		return None
+
 	def dijkstra(self):
 		g = self.g
 		x = self.x
@@ -177,7 +227,7 @@ class Search(object):
 #			index += 1
 #			self.frontier[x][y] = index
 			if x == self.goal[0] and y == self.goal[1]:
-				print node
+#				print node
 #				for c in self.frontier:
 #					print c
 				return self.expand
@@ -209,7 +259,7 @@ class Search(object):
 			h = node[0]
 
 			if x == self.goal[0] and y == self.goal[1]:
-				print node
+#				print node
 				return self.expand
 			else:
 				self.expand[x][y] = self.BLUE
@@ -241,7 +291,7 @@ class Search(object):
 			g = node[3]
 			
 			if x == self.goal[0] and y == self.goal[1]:
-				print node
+#				print node
 				return self.expand
 			else:
 				self.expand[x][y] = self.BLUE
@@ -305,22 +355,24 @@ if __name__ == '__main__':
 		if mouse_pressed[0]:
 			expand = None
 			x,y = pygame.mouse.get_pos()
-			column = x // (WIDTH+MARGIN)
-			row = y // (HEIGHT+MARGIN)
-			if rect.collidepoint(x,y):
-				pos_flag = rect
-				rect.center = (x,y)
-			elif rect2.collidepoint(x,y):	
-				pos_flag = rect2
-				rect2.center = (x,y)
-				pass
-			else:
-				if grid.grid_map[row][column] == BLACK and not obs_flag:
+			if not x <0 and not y <0 and not x >= WINDOW_SIZE[0]-MARGIN and not y >= WINDOW_SIZE[1]-MARGIN:
+				column = x // (WIDTH+MARGIN)
+				row = y // (HEIGHT+MARGIN)
+				if rect.collidepoint(x,y):
+					pos_flag = rect
+					rect.center = (x,y)
 					obs_flag = WHITE
-				elif grid.grid_map[row][column] == WHITE and not obs_flag:
-					obs_flag = BLACK
-			if obs_flag:
-				grid.grid_map[row][column] = obs_flag
+				elif rect2.collidepoint(x,y):	
+					pos_flag = rect2
+					rect2.center = (x,y)
+					obs_flag = WHITE
+				else:
+					if grid.grid_map[row][column] == BLACK and not obs_flag:
+						obs_flag = WHITE
+					elif grid.grid_map[row][column] == WHITE and not obs_flag:
+						obs_flag = BLACK
+				if obs_flag:
+					grid.grid_map[row][column] = obs_flag
 		else:
 			if pos_flag:
 				pos_flag.center = (pygame.Rect(grid.coordinateX(column), grid.coordinateY(row),WIDTH,HEIGHT)).center
@@ -340,15 +392,26 @@ if __name__ == '__main__':
 				if event.key == pygame.K_ESCAPE:
 					pygame.quit()
 					sys.exit()
-				#press d for dijkstra
+				#press b for breadth first
+				if event.key == pygame.K_b:
+					print 'breadth first search'
+					expand = search.breadthfirst()
+				#press d for depth first
 				if event.key == pygame.K_d:
+					print 'depth first search'
+					expand = search.depthfirst()
+				#press u for dijkstra (uniform cost)
+				if event.key == pygame.K_u:
+					print 'dijkstra algorithm'
 					expand = search.dijkstra()
 				#press a for astar
 				if event.key == pygame.K_a:
+					print 'a* algorithm'
 					search.set_heuristic()
 					expand = search.astar()
 				#press g for greedy
 				if event.key == pygame.K_g:
+					print 'greedy algorithm'
 					search.set_heuristic()
 					expand = search.greedy()
 				if expand:

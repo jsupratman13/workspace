@@ -140,6 +140,9 @@ class Search(object):
 		self.action = [[-1 for row in range(len(self.grid[0]))] for col in range(len(self.grid))]
 		self.path = [[' ' for row in range(len(self.grid[0]))] for col in range(len(self.grid))]
 
+		#show value
+		self.value = [[999 for row in range(len(self.grid[0]))]for col in range(len(self.grid))]
+
 	def set_heuristic(self):
 		#use euclidean distance
 		self.heuristic = [[1000 for row in range(len(self.grid[0]))] for col in range(len(self.grid))]
@@ -159,6 +162,30 @@ class Search(object):
 			self.path[x2][y2] = self.motion_name[self.action[x][y]]
 			x = x2
 			y = y2
+		return self.path
+
+	def get_policy(self):
+		update = True
+		while update:
+			update = False
+			for x in range(len(self.grid)):
+				for y in range(len(self.grid[0])):
+					if x == self.goal[0] and y == self.goal[1]:
+						if self.value[x][y] != 0:
+							self.value[x][y] = 0
+							self.path[x][y] = '*'
+							update = True
+					elif self.grid[x][y] == self.WHITE:
+						for i in range(len(self.motions)):
+							x2 = x + self.motions[i][0]
+							y2 = y + self.motions[i][1]
+							if x2 >= 0 and x2 < len(self.grid) and y2 >= 0 and y2 < len(self.grid[0]):
+								if self.grid[x][y] != self.BLACK:
+									value = self.value[x2][y2] + 1
+									if value < self.value[x][y]:
+										self.value[x][y] = value
+										self.path[x][y] = self.motion_name[i]
+										update = True
 		return self.path
 
 	def breadthfirst(self):
@@ -345,6 +372,7 @@ if __name__ == '__main__':
 	search = Search(grid)
 	obs_flag = None
 	pos_flag = None
+	policy = False
 	while True:
 		pygame.display.update()
 		clock.tick(60)
@@ -354,6 +382,7 @@ if __name__ == '__main__':
 		mouse_pressed = pygame.mouse.get_pressed()
 		if mouse_pressed[0]:
 			expand = None
+			policy = False
 			x,y = pygame.mouse.get_pos()
 			if not x <0 and not y <0 and not x >= WINDOW_SIZE[0]-MARGIN and not y >= WINDOW_SIZE[1]-MARGIN:
 				column = x // (WIDTH+MARGIN)
@@ -389,6 +418,7 @@ if __name__ == '__main__':
 			if event.type == pygame.KEYDOWN:
 				search.reset(grid.grid_map,start=rect,goal=rect2)
 				expand = None
+				policy = False
 				if event.key == pygame.K_ESCAPE:
 					pygame.quit()
 					sys.exit()
@@ -414,6 +444,11 @@ if __name__ == '__main__':
 					print 'greedy algorithm'
 					search.set_heuristic()
 					expand = search.greedy()
+				#press p to show policy
+				if event.key == pygame.K_p:
+					print 'showing policy'
+					path =  search.get_policy()
+					policy = True
 				if expand:
 					path = search.get_path()
 
@@ -422,6 +457,7 @@ if __name__ == '__main__':
 			grid.draw_path(path)
 		else:
 			grid.draw_grid(grid.grid_map)
+			if policy: grid.draw_path(path)
 
 		screen.blit(im,rect)
 		screen.blit(im2,rect2)

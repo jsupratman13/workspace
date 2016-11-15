@@ -43,6 +43,12 @@ etc
 
 ###Value Function
 * associates to each grid cell the length of the shortest path to the goal
+ex.
+5|4|3|3
+-------
+6|x|2|1
+7|x|1|G
+
 ```
 f(x,y) = min(f(x'y')) + 1
 ```

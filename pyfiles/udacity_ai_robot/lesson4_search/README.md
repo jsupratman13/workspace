@@ -52,6 +52,7 @@ ex.
 ```
 f(x,y) = min(f(x'y')) + 1
 ```
-
-
-
+###Stochastic Action
+* For path plan, robot usually get shortest path. In case of obstacle, it gets as close as possible to obstacle. This however is dangerous.
+* robot may not move as planned, due to noise
+* we add clearance or avoid radius

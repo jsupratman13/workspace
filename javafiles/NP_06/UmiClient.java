@@ -228,10 +228,13 @@ public class UmiClient implements Runnable {
                 int x = Integer.parseInt(st.nextToken()) ;
                 int y = Integer.parseInt(st.nextToken()) ;
 
+                double point = Double.parseDouble(st.nextToken());
+                point = Math.round(point*10.0)/10.0;
+
                 // 船を表示します
                 g.fillOval(x - 10, 256 - y - 10, 20, 20);
                 // 得点を船の右下に表示します
-                g.drawString(st.nextToken(),x+10,256-y+10) ;
+                g.drawString(String.valueOf(point),x+10,256-y+10) ;
                 // 名前を船の右上に表示します
                 g.drawString(obj_name,x+10,256-y-10) ;
 

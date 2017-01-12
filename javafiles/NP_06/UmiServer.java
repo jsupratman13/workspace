@@ -21,6 +21,8 @@ public class UmiServer {
     static Hashtable userTable = null;
                 // クライアント関連情報登録用テーブル
     static Random random = null;
+    static Integer[] e_point_list;
+    static int index = 100;
 
     // addConnectionメソッド
     // クライアントとの接続をVectorオブジェクトconnectionsに登録します
@@ -47,8 +49,7 @@ public class UmiServer {
         }
         if (random == null){// 乱数の準備をします
             random = new Random();
-        }
-        // 船の初期位置を乱数で決定します
+        } // 船の初期位置を乱数で決定します
         int ix = Math.abs(random.nextInt()) % 256;
         int iy = Math.abs(random.nextInt()) % 256;
 
@@ -165,9 +166,24 @@ public class UmiServer {
         pw.flush();
     }
 
+    //create random energy
+    public static void randomize_energy(){
+        e_point_list = new Integer[100];
+        for(int i =0; i<100; i++){
+            if(i<85) e_point_list[i] = 1;
+            else if(i<90) e_point_list[i] = -1;
+            else if(i <100) e_point_list[i] = 10;
+        }
+        Collections.shuffle(Arrays.asList(e_point_list));
+    }
+
     // putEnergyメソッド
     // 燃料タンクを１つだけ,海上にランダムに配置します
     public static void putEnergy(){
+        if(index >= 100){
+            randomize_energy();
+            index = 0;
+        }
         if (energy_v == null){// 初めて配置する場合の処理
             energy_v = new Vector();
         }
@@ -176,9 +192,10 @@ public class UmiServer {
         }
         // 乱数で位置を決めて海上に配置します
         int[] e = new int[3];
-        e[0] = Math.abs(random.nextInt()) % 256;
-        e[1] = Math.abs(random.nextInt()) % 256;
-        e[2] = 10;
+        e[0] = Math.abs(random.nextInt()) % 246;
+        e[1] = Math.abs(random.nextInt()) % 246;
+        e[2] = e_point_list[index];
+        index++;
 
         energy_v.addElement(e);
     }
@@ -300,7 +317,7 @@ class Ship {
     int x;
     int y;
     // 獲得した燃料タンクの個数
-    int point = 10; //TODO:change tank size
+    double point = 10; //TODO:change tank size
 
     // コンストラクタ
     // 初期位置をセットします
@@ -312,34 +329,46 @@ class Ship {
     // leftメソッド
     // 船を左に動かします
     public void left(){
-        x -= 10;
-        // 左の辺は右の辺につながっています
-        if (x < 0)
-            x += 256;
+        if(point > 0){
+            point -= 0.1;
+            x -= 10;
+            // 左の辺は右の辺につながっています
+            if (x < 0)
+                x += 256;
+        }
     }
 
     // rightメソッド
     // 船を右に動かします
     public void right(){
-        x += 10;
-        // 右の辺は左の辺につながっています
-        x %= 256;
+        if(point > 0){
+            point -= 0.1;
+            x += 10;
+            // 右の辺は左の辺につながっています
+            x %= 256;
+        }
     }
 
     // upメソッド
     // 船を上に動かします
     public void up(){
-        y += 10;
-        // 上の辺は下の辺につながっています
-        y %= 256;
+        if(point > 0){
+            point -= 0.1;
+            y += 10;
+            // 上の辺は下の辺につながっています
+            y %= 256;
+        }
     }
 
     // downメソッド
     // 船を下に動かします
     public void down(){
-        y -= 10;
-        // 下の辺は上の辺につながっています
-        if (y < 0)
-            y += 256;
+        if(point > 0){
+            point -= 0.1;
+            y -= 10;
+            // 下の辺は上の辺につながっています
+            if (y < 0)
+                y += 256;
+        }
     }
 }

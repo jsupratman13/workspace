@@ -74,6 +74,7 @@ public class UmiClient implements Runnable {
         c = new Canvas();
         c.setSize(256,256);// 大きさの設定
         // フレームに必要な部品を取り付けます
+        c.addKeyListener(new CustomKeyListener());
         p.add(c);
         f.add(p);
 
@@ -273,7 +274,7 @@ public class UmiClient implements Runnable {
 
     // sendCommandメソッド
     // サーバへコマンドを送信します
-    void sendCommand(String s){
+    public void sendCommand(String s){
         if ("up".equals(s)){
             out.println("up");
         }else if ("down".equals(s)){
@@ -291,4 +292,17 @@ public class UmiClient implements Runnable {
     public static void main(String[] arg){
         new UmiClient();
     }
+
+    class CustomKeyListener implements KeyListener{
+        public void keyTyped(KeyEvent e){}
+        public void keyReleased(KeyEvent e){}
+        public void keyPressed(KeyEvent e){
+            int key = e.getKeyCode();
+            if (key == KeyEvent.VK_LEFT) sendCommand("left");
+            if (key == KeyEvent.VK_RIGHT) sendCommand("right");
+            if (key == KeyEvent.VK_UP) sendCommand("up");
+            if (key == KeyEvent.VK_DOWN) sendCommand("down");
+        }
+    }
+
 }

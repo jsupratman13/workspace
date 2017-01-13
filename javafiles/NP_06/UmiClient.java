@@ -108,7 +108,7 @@ public class UmiClient implements Runnable {
     public void run(){
         while (true){
             try {
-                Thread.sleep(500);
+                Thread.sleep(100);
             }catch(Exception e){
             }
             // repainメソッドを用いて,サーバ上の情報を画面に出力します
@@ -231,6 +231,7 @@ public class UmiClient implements Runnable {
 
                 double point = Double.parseDouble(st.nextToken());
                 point = Math.round(point*10.0)/10.0;
+                if(point < 0) point=0;
 
                 // 船を表示します
                 g.fillOval(x - 10, 256 - y - 10, 20, 20);

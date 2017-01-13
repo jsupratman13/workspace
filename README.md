@@ -14,6 +14,9 @@ Collection of software tutorials and exercise.
   * Numpy
   * Networkx
   * Pygame
+* Java
+  * loadkeys jp (to change to japnese keyboard)
+
 * Markdown
 * Gnuplot
 * Latex

@@ -98,6 +98,7 @@ public class UmiClient implements Runnable {
         });
         f.add(b,BorderLayout.SOUTH);
 
+        //add Keyboard listener
         // ƒtƒŒ[ƒ€f‚ğ•\¦‚µ‚Ü‚·
         f.setSize(335,345);
         f.show();

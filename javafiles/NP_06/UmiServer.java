@@ -330,7 +330,7 @@ class Ship {
     // 船を左に動かします
     public void left(){
         if(point > 0){
-            point -= 0.01;
+            point -= 0.1;
             x -= 10;
             // 左の辺は右の辺につながっています
             if (x < 0)
@@ -342,7 +342,7 @@ class Ship {
     // 船を右に動かします
     public void right(){
         if(point > 0){
-            point -= 0.01;
+            point -= 0.1;
             x += 10;
             // 右の辺は左の辺につながっています
             x %= 256;
@@ -353,7 +353,7 @@ class Ship {
     // 船を上に動かします
     public void up(){
         if(point > 0){
-            point -= 0.01;
+            point -= 0.1;
             y += 10;
             // 上の辺は下の辺につながっています
             y %= 256;
@@ -364,7 +364,7 @@ class Ship {
     // 船を下に動かします
     public void down(){
         if(point > 0){
-            point -= 0.01;
+            point -= 0.1;
             y -= 10;
             // 下の辺は上の辺につながっています
             if (y < 0)

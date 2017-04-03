@@ -1,1 +1,0 @@
-/usr/bin/c++  -fPIC    -shared -Wl,-soname,libgtest.so -o libgtest.so CMakeFiles/gtest.dir/src/gtest-all.cc.o  -L/home/jsupratman13/github/workspace/ros/pyexercise2_gazebo/build/gtest/src -lpthread -Wl,-rpath,/home/jsupratman13/github/workspace/ros/pyexercise2_gazebo/build/gtest/src 

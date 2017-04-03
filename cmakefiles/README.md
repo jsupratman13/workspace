@@ -11,9 +11,12 @@ it the idea
 ##Build
 ```
 cmake .
-```
-```
 make
+```
+
+##Change build option
+```
+ccmake .
 ```
 
 ##Function

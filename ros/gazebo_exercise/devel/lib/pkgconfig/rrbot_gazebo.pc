@@ -1,8 +1,0 @@
-prefix=/home/jsupratman13/github/workspace/ros/gazebo_exercise/devel
-
-Name: rrbot_gazebo
-Description: Description of rrbot_gazebo
-Version: 0.1.0
-Cflags: 
-Libs: -L/home/jsupratman13/github/workspace/ros/gazebo_exercise/devel/lib 
-Requires: 

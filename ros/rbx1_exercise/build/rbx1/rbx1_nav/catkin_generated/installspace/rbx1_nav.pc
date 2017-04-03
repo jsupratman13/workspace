@@ -1,8 +1,0 @@
-prefix=/home/jsupratman13/github/workspace/ros/rbx1_exercise/install
-
-Name: rbx1_nav
-Description: Description of rbx1_nav
-Version: 0.4.0
-Cflags: -I/home/jsupratman13/github/workspace/ros/rbx1_exercise/install/include
-Libs: -L/home/jsupratman13/github/workspace/ros/rbx1_exercise/install/lib 
-Requires: dynamic_reconfigure

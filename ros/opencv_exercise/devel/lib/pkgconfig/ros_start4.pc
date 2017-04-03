@@ -1,8 +1,0 @@
-prefix=/home/jsupratman13/github/workspace/ros/opencv_exercise/devel
-
-Name: ros_start4
-Description: Description of ros_start4
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/jsupratman13/github/workspace/ros/opencv_exercise/devel/lib 
-Requires: 

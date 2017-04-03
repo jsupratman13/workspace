@@ -12,7 +12,7 @@ int main(){
 	sock = socket(AF_INET, SOCK_DGRAM, 0); 	//construct socket
 	addr.sin_family = AF_INET;				//assign communication protocol
 	addr.sin_port = htons(8000);			//assign port
-	addr.sin_addr.s_addr = inet_addr("127.0.0.1");	//IP address
+	addr.sin_addr.s_addr = inet_addr("127.0.0.1");	//IP address 127.0.0.1
 
 	sendto(sock, test, strlen(test), 0, (struct sockaddr *)&addr, sizeof(addr));	//send data
 	close(sock);	//deallocate socket

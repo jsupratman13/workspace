@@ -1,8 +1,0 @@
-prefix=/home/jsupratman13/github/workspace/ros/exercise2/install
-
-Name: agrit2
-Description: Description of agrit2
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/jsupratman13/github/workspace/ros/exercise2/install/lib 
-Requires: 

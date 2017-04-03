@@ -1,9 +1,0 @@
-<launch>
-	<node
-		pkg="ros_start2"
-		name="vel_bumper_parameter"
-		type="vel_bumper_parameter.py"
-		>
-		<param name="vel_x" value="1.0" />
-	</node>
-</launch>

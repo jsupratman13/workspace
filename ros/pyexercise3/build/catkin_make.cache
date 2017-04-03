@@ -1,2 +1,0 @@
-ros_start3
--DCATKIN_DEVEL_PREFIX=/home/jsupratman13/github/workspace/ros/pyexercise3/devel -DCMAKE_INSTALL_PREFIX=/home/jsupratman13/github/workspace/ros/pyexercise3/install -G Unix Makefiles

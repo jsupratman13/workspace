@@ -1,2 +1,0 @@
-ros_start4
--DCATKIN_DEVEL_PREFIX=/home/jsupratman13/github/workspace/ros/opencv_exercise/devel -DCMAKE_INSTALL_PREFIX=/home/jsupratman13/github/workspace/ros/opencv_exercise/install -G Unix Makefiles

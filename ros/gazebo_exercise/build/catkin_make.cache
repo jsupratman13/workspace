@@ -1,2 +1,0 @@
-gazebo_ros_demos/custom_plugin_tutorial:gazebo_ros_demos/rrbot_control:gazebo_ros_demos/rrbot_description:gazebo_ros_demos/rrbot_gazebo
--DCATKIN_DEVEL_PREFIX=/home/jsupratman13/github/workspace/ros/gazebo_exercise/devel -DCMAKE_INSTALL_PREFIX=/home/jsupratman13/github/workspace/ros/gazebo_exercise/install -G Unix Makefiles

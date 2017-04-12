@@ -1,12 +1,12 @@
-#Lesson 2 Kalman Filter
-##Tracking
+# Lesson 2 Kalman Filter
+## Tracking
 Technique for estimating the state of a system
 * Kalman Filter estimate continuous rate -> Uni-modal distribution
 * Monte Carlo Localization chop world into discrete places -> Multi-modal distribution
 * Particle Filter estimate continuous and Multi-modal distribution
 Both technique are applicable to robot localization and tracking other object/vehicle
 
-##Gaussian
+## Gaussian
 Markov Model(seperate world into spaces like grid) + label probability on each space =
 Historgram: representation of probability over spaces
 Ex:
@@ -33,19 +33,19 @@ f(x) = (1/sqrt(2*pi*o^2))*exp{-0.5*((x-u)^2)/o^2)}
 * when u = x gaussian is max
 * u = mean, o = variance
 
-###Variance
+### Variance
 * Higher variance means wide gaussian vice versa
 * sigma-squared covariance is measure of uncertainty, the larger it is, the more uncertain the actual state is 
 * Therefore the narrow the gaussian, the more confident its location and thus it is better
 
-##Core concept
+## Core concept
 Kalman filter iterates two different things: measurement and motion updates(similar to monte carlo except max changes)
 * Performing measurement meant updating belief by multiplicative factor (measurement = product) and renormalizing our distribution
 * Motion meant keeping track of where all of our probability 'went' when we moved and involves performing convolution (motion = convolution)
 
 Measurement Update (Bayes Rule/product) <-> Prediction (Total Probability/convolution/addition)
 
-###Measurement (Gaussian)
+### Measurement (Gaussian)
 1. Uncertain gaussian (prior)
 2. narrow guassian (measurement)
 3. new mean is between the two gaussian and closer to measurement. The more certain it is, the more closer to measurement.
@@ -58,18 +58,18 @@ posterior(combine) : u'=(r2*u + o2*v)/(r2+o2), o2'=1/((1/r2)+(1/o2))
 * If variance is same, new mean is middle
 * Posterior variance will always be smaller thus narrow gaussian
 
-###Motion(Gaussian)
+### Motion(Gaussian)
 * Robot loses information as it moves therefore as the gaussian shift, it will be more wider
 u'<-u+U(mean motion. if move 10 m this will be 10)
 o2'<-o2+r2(motion uncertainty)
 σ²′ ← σ² + r²(motion uncertainty)
 
-##Kalman Filter
+## Kalman Filter
 * initial variance(uncertainty) should be set high (if low it thinks it is in right position)
 * If you do estimation using kalman filter in high dimensional spaces, it not only figures out the x, and y spaces but also the velocity of the object and uses the velocity to make good prediction.
 * Sensor only reads object position, kalman filter figures out the velocity and predict future position
 
-###Multivariate gaussians
+### Multivariate gaussians
 * High dimensional guassians
 * mean = vector, variance=covaraince = matrix DxD
 * x,y coordinate are dimensional mean, the lines are uncertainty ex 2d contour line
@@ -86,12 +86,12 @@ as measurement are made contour line becomes smaller(more certain)
 * we only known that our location is correlated to the velocity ex faster movent, the further on the right is the location
 * more on video
 
-##Big Lesson
+## Big Lesson
 * Variable of kalman filter are often called states because they reflect states of the physical role(where other car is, fastest moving etc)
 * States seperate to 2 subsets: the observables (momentary locations) and the hidden (velocity)
 * 2 subsets interact, subsequent observations of the observable variables (multiple locations) gives information about the hidden variables (how fast is moving) thus it can be estimated
 
-##Designing
+## Designing
 2 things required
 * For state, need state transition function [x, x_dot]T <- [[1,t],[0,1]]T[x, x_dot]T (linear algebra) t = time
 * For measurement, measurement function z <- [1,0][x, x_dot]T
@@ -102,7 +102,7 @@ z = x
 * Matrix function must output the equation above
 F = [[1,t],[0,1]] H= [1,0] t = interval (for sensor input)
 
-###Update
+### Update
 x = estimate
 P = uncertainty covariance
 F = state transition matrix
@@ -111,16 +111,16 @@ z = measurement
 H = measurement function
 R = measurement noise
 I = identity matrix
-####Prediction
+#### Prediction
 x' = Fx + u
 P' = F * P * FT (transpose)
-####Measurement Update
+#### Measurement Update
 (aka error) y = z - Hx
 (error matrix) S = H * P * HT (transpose) + R
 (kalman gain) K = P * HT (transpose) * S-1 (invert)
 x' = x + (Ky)
 P' = (I - KH)P
 
-##Conclusion
+## Conclusion
 Kalman filter predicts the next state through information of observb variable and hidden variable
 * heavytail gaussian cannot be represented the same as gaussian function (area have to be 1)

@@ -1,4 +1,4 @@
-#Lesson 3 Particle Filter
+# Lesson 3 Particle Filter
 
 Filters|State Space|Belief|Efficiency|in Robotics
 -------------------------------------------------
@@ -21,30 +21,30 @@ Start with unknown position and map
 Particles: structured as x,y and direction comprise as a single guess (filter is a set of thousands of guess that together comprise an approximate representation for the posterior of the robot)
 * as the robot move and sense, particles cluster together at the most likely position
 
-##Robot World
+## Robot World
 ex localizing_robot.py
 m1            m2
 --->robot-------
 m2         m3
 cyclic world
 
-##Steps for particle
+## Steps for particle
 * generate N particles with information
 * for a movement, generate result for each N particles
 * measurement the landmarks = actual measurement
 * for each particle the comparison between the predicted and actual measurement gives the weight. The more the weight, the more important it is.
 * Resampling: randomly drawing new particles from old particles in proportion to the importance of weight
 
-##Weight importance
+## Weight importance
 use gaussian with mean as predicted and x as actual and sigma as noise.
 the higher the more likely it is
 
-##Resampling
+## Resampling
 * normalize weight
 * The new random set of particles will pick the particles with high importance several times
 * sometime, higher importance might not be sampled at all
 * probability of never sampling p1 = (1-pi)^N where N is number of sampling
-###Circumference method
+### Circumference method
 * All particles describe in single pi graph
 * The more the weight, the larger the area
 * with beta = random number, if beta is smaller than weight, append else skip
@@ -57,7 +57,7 @@ select p[index]
 ```
 * orientation require a bit more movement before it becomes accurate
 
-##Review
+## Review
 Measurement update
 * posterior over state given the measurement ->
 * proportional up to normalization of probability of the measurement given the state times 'p' of the state itself
@@ -74,12 +74,12 @@ p(X) = particles
 sigma(P(X'|X)) = sampled (taking random particles of p(X) and applying motion model with a noise model to generate random particle x')
 P(X') = new particle set
 
-##Conclusion
+## Conclusion
 * All 3 filters follow the same math above for measurement update, and motion update
 * Motion loses information and thus particles will tend to spread out more
 * particle filter with only 1 particle will ignore robot measurement (since it has same sample no matter what) and it will likely fail
 
-##Google car difference
+## Google car difference
 * Robot Model
 GoogleCar: 2 steerable and 2 non steerable(bicycle model)
 * Sensor Data
@@ -87,13 +87,13 @@ snapshot of the map, and match with elaborate road map
 * Additional Sensor
 -GPS, Inertial Sensor
 
-##Quiz1
+## Quiz1
 For state A,B,C,D what is the probability of that zero particles are in A?
 N=1 : one state is 1/4 so the opposite is 3/4 = 0.75
 N=4: 0.75^4
 N=10: o.75^10
 
-##Quiz2
+## Quiz2
 For state A=5, B=3, C=3, D=1,
 A|B
 --
@@ -102,5 +102,5 @@ C|D
 N=1 : A=D=Bx0.5+Cx0.5, B=C=Ax0.5+Dx0.5
 N=inf: lose info so distribute equally, 3,3,3,3 
 
-##Quiz3
+## Quiz3
 Bicycle model

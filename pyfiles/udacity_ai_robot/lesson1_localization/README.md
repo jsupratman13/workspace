@@ -135,11 +135,13 @@ ans 0.25
 
 ##Limit Distribuition
 for example:
+```
 1,0,0,0,0
 if U=1 but continously move then
 0.2,0.2,0.2,0.2,0.2
 the more the robot moves the more uncertain it becomes and finally reaches maximum uncertainty which is uniform distribution
 0.7*p(X2)+0.1*p(X1)+0.1*p(X3)=p(X4)
+```
 
 #Conclusion
 * Localization

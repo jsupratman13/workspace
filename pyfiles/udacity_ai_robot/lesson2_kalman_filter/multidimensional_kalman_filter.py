@@ -1,22 +1,22 @@
 import numpy as np
 
 def kalman_filter(x,P):
-	for measurement in measurements:
-		z = np.matrix([[measurement]])
-		#measurement update
-		y = z - H*x 
-		S = H * P * H.getT() + R
-		K = P * H.getT() * S.getI()
-		x = x + (K*y)
-		P = (I - K*H)*P
+        for measurement in measurements:
+                z = np.matrix([[measurement]])
+                #measurement update
+                y = z - H*x 
+                S = H * P * H.getT() + R
+                K = P * H.getT() * S.getI()
+                x = x + (K*y)
+                P = (I - K*H)*P
 
-		#prediction
-		x = F*x + u
-		P = F*P*F.getT()
-	
-#		print x
-#		print P
-	return x,P
+                #prediction
+                x = F*x + u
+                P = F*P*F.getT()
+        
+#               print x
+#               print P
+        return x,P
 
 ### 1 dimension world example x = [position, velocity] 2D
 measurements = [1,2,3]
@@ -32,20 +32,20 @@ I = np.matrix([[1.0,0.0],[0.0,1.0]]) # identity matrix
 
 #for 4d
 def kalman_filter2(x,P):
-	for measurement in measurements:
-		#prediction
-		x = F*x + u
-		P = F*P*F.getT()
-		
-		z = np.matrix([measurement])
-		#measurement update
-		y = z.getT() - H*x 
-		S = H * P * H.getT() + R
-		K = P * H.getT() * S.getI()
-		x = x + (K*y)
-		P = (I - K*H)*P
+        for measurement in measurements:
+                #prediction
+                x = F*x + u
+                P = F*P*F.getT()
+                
+                z = np.matrix([measurement])
+                #measurement update
+                y = z.getT() - H*x 
+                S = H * P * H.getT() + R
+                K = P * H.getT() * S.getI()
+                x = x + (K*y)
+                P = (I - K*H)*P
 
-	return x,P
+        return x,P
 
 ### 2 dimension world example x = [pos_x, vel_x, pos_y, vel_y] 4D
 measurements = [[5.0,10.0],[6.0,8.0],[7.0,6.0],[8.0,4.0],[9.0,2.0],[10.0,0.0]]

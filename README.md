@@ -1,7 +1,7 @@
-#jsupratman13 WorkSpace
-Collection of software tutorials and exercise.
+# jsupratman13 WorkSpace
+Practice repository and collection of software tutorials and exercise for self learning.
 
-##Contents
+## Contents
 * C++
   * C
   * Class

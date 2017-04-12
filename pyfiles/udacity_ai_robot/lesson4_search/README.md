@@ -58,3 +58,11 @@ f(x,y) = min(f(x'y')) + 1
 * robot may not move as planned, due to noise
 * we add clearance or avoid radius
 * our value (cost) change when considering stochastic action and thus our policy also changes
+
+##QA
+* Global planning -> local planning -> update variable
+* heuristic function
+  * 3d to 2d mapping 
+  * 3d without obstacles
+* good Astar heuristic: good ways of cheating and solving the problem by lessening constraint and doing it much faster
+

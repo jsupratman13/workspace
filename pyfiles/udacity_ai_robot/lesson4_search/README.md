@@ -10,7 +10,7 @@ Given:
 Goal:
 * find minimal cost path
 
-## Seach option
+## Search option
 * Depth First Search
 * Breadth First Search
 * Dijkstra Search
@@ -40,8 +40,9 @@ etc
 * in Reality, enviornment is stochastic, outcome of action are non-deteministic (when moving, you might end going to places that are not optimal due to situation)
 * instead of astar(only one path to the goal) you need optimal path for any other location (anywhere)
 * in grid map, each grid cell have policy: function that maps the grid cell into action
+* in policy, each grid cell show which direction agent should take to reach the goal
 
-## #Value Function
+### Value Function
 * associates to each grid cell the length of the shortest path to the goal
 ex.
 5|4|3|3
@@ -56,3 +57,4 @@ f(x,y) = min(f(x'y')) + 1
 * For path plan, robot usually get shortest path. In case of obstacle, it gets as close as possible to obstacle. This however is dangerous.
 * robot may not move as planned, due to noise
 * we add clearance or avoid radius
+* our value (cost) change when considering stochastic action and thus our policy also changes

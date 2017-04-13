@@ -1,10 +1,10 @@
-#Java Access Modifier
+# Java Access Modifier
 * Visible to the package, default. No modifers needed
 * Visible to class only (private)
 * Visible to the world (public)
 * Visible to the package and all related subclasses (protected)
 
-#Non Access Modifier
+# Non Access Modifier
 * 'static' modifier for creating methods and variables
   * variable: one copy for any instances created for class
   * method: exist independently for any instances

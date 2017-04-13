@@ -1,13 +1,13 @@
-#Latex
+# Latex
 something like word or pages that can make pdf through programming. great for making research report, thesis, document with math etc.
 
-##Compile Method
+## Compile Method
 pdflatex [filename].tex
 
-##Install Method
+## Install Method
 TODO
 
-##Latex Command List
+## Latex Command List
 --initialization! always begin with this--
 \documentclass[option]{classname}
 				(option: 12pt, a4, b5 etc)

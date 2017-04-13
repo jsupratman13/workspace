@@ -1,4 +1,4 @@
-#C++ class
+# C++ class
 In C++ classes are what makes C++ object oriented programming language.
 Classes are made like this:
 ```c++
@@ -6,10 +6,10 @@ class ClassName(){...
 ...
 };
 ```
-##Compile Method
+## Compile Method
 g++ [filename]
 
-#Content
+# Content
 1. class
 2. inheritance
 3. constructor
@@ -21,7 +21,7 @@ g++ [filename]
 9. overload
 10. interface
 
-##Membership
+## Membership
 In C++, class have 3 common member, public, protected and private.
 In each member have their own special access.
 
@@ -34,7 +34,7 @@ outside class|yes|no|no
 Normally public membership is used for interface such as accessing function.
 Normally private/protected membership is used for implementing data and variable.
 
-##Access
+## Access
 To access member of class use dot.
 ```c++
 ClassName classname;

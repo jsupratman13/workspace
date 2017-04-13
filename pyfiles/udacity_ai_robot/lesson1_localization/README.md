@@ -1,15 +1,15 @@
-#Lesson 1 Histogram Filter
+# Lesson 1 Histogram Filter
 Monte Carlo Localization
 
-##Core concept
+## Core concept
 2d -> robot -> uniform -> sense -> move -> sense -> convolution
 
-##Uniform Distribution
+## Uniform Distribution
 Uniform Distribution means that the probability of all possilibilty is the same.
 
 For example the probability of 5 cell with uniform(same) distribution is 1/5 or 0.2
 
-##Normalization
+## Normalization
 The sum of probability must equal to 1. The process of converting the calculated probability to meet this condition is normalization.
 
 For example:
@@ -32,7 +32,7 @@ total distribution = 0.99
 probability of x after observation z = posterior distribution
 p(xi|z)
 
-##In Exact Movement
+## In Exact Movement
 In an ideal situation, exact movement is when robot move precisely as it should. 
 However in reality, robot would not completely move exactly as it should do to noise. This is called inexact movement.
 For example:
@@ -72,7 +72,7 @@ if uniform distribution, no uncertainty
 ex 0.2,0.2,0.2,0.2,0.2
 then 0.2,0.2,0.2,0.2,0.2
 
-##Sense Movement
+## Sense Movement
 initial belief -> sense
 sense <-> move 
 * each time robot moves it loses information
@@ -82,17 +82,17 @@ Entropy- the measures of information sigma(pXi) logp(xi)
 * motion (update step) decrease entropy
 * measurement increase entropy
 
-##summarize
+## summarize
 Belief = Probabilility
 Sense = Product followed by normalization
 move = Convolution (=Addition)
 
-##Formal definition
-###probability
+## Formal definition
+### probability
 0 <= P(X) <= 1 probabilities add up to 1
 Sum(Px)=1
 
-###measurement
+### measurement
 (Bayes Rule)
 X = grid cell
 Z = measurement
@@ -118,7 +118,7 @@ hint think of p(c) as robot movement and p(pos|c) as measurement
 
 ans: 0.0079
 
-##Motion: Total probability
+## Motion: Total probability
 t = time, i = grid cell
 P(Xt,i) = sumj(P(Xt-1,j)P(xi|xj)
 (or)
@@ -133,7 +133,7 @@ p(H)=?
 
 ans 0.25
 
-##Limit Distribuition
+## Limit Distribuition
 for example:
 ```
 1,0,0,0,0
@@ -143,14 +143,14 @@ the more the robot moves the more uncertain it becomes and finally reaches maxim
 0.7*p(X2)+0.1*p(X1)+0.1*p(X3)=p(X4)
 ```
 
-#Conclusion
+# Conclusion
 * Localization
 * Markov Localization
 * Probabilites
 * Bayes Rule
 * Total Probability
 
-##Homework make 2d localization
+## Homework make 2d localization
 world
 |R|R|G|R|R|
 |G|G|R|G|G|

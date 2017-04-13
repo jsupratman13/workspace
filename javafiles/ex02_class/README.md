@@ -1,9 +1,9 @@
-#Classes and Object in Java
+# Classes and Object in Java
 
-##Compile Method
+## Compile Method
 javac Singleton.java SingletonDemo.java
 
-##sample class
+## sample class
 ```java
 public class Dog{
 	String breed;
@@ -15,12 +15,12 @@ public class Dog{
 	void sleeping(){}
 }
 ```
-##Variable type
+## Variable type
 * Local variable: define inside method, constructors or blocks
 * Instance variable: define inside class but outside method
 * Class variable: define within class outside any method with static keyword
 
-##Contructors
+## Contructors
 same as c++. constructor is mandatory and java will automatically make one if not included
 ```java
 public class Pupply{
@@ -32,7 +32,7 @@ public class Pupply{
 }
 ```
 
-##Singleton Class
+## Singleton Class
 Control object creation to one only.
 ```java
 public class ClassicSingleton{
@@ -51,7 +51,7 @@ public class ClassicSingleton{
 ```
 * sample above emply technique known as lazy instantiation, singleton instance is not created until getInstance(9 method is called for first time -> ensures that singleton instance are created only when needed
 
-##Accessing instance variable and methods
+## Accessing instance variable and methods
 Examples are 
 ```java
 //First create an object

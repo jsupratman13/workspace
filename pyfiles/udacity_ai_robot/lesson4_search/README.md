@@ -59,7 +59,7 @@ f(x,y) = min(f(x'y')) + 1
 * we add clearance or avoid radius
 * our value (cost) change when considering stochastic action and thus our policy also changes
 
-##QA
+## QA
 * Global planning -> local planning -> update variable
 * heuristic function
   * 3d to 2d mapping 

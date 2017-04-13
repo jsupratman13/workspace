@@ -1,2 +1,2 @@
-#Exercise 1
+# Exercise 1
 * very simple example of compiling multiple source

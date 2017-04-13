@@ -1,4 +1,4 @@
-#Methods
+# Methods
 * modifier: define access type of method
 * returnType: method may return value
 * nameOfMethod: method name
@@ -10,16 +10,16 @@ modifier returnType nameOfMethod(parameter list){
 }
 ```
 
-##Void keyword
+## Void keyword
 * special type of returnType that does not return anything
 
-##Overloading
+## Overloading
 * method with same name but different parameter
 
-#Constructor
+# Constructor
 * initialization of method. made default is made if none are made
 
-##this keyword
+## this keyword
 this keyword is used as reference to the object of the current class
 * differentiate the instance variables from local variables if they have same names within contructor or method
 ```java
@@ -42,13 +42,13 @@ class Student{
 	}
 ```
 
-##Variable argurments
+## Variable argurments
 java allows passing variable number of arguments of the same type to a method
 ```java
 typeName... parameterName
 ```
 
-##Finalize method
+## Finalize method
 * use method called finalize() to be called just be object's final destruction
 ```java
 protected void finalize(){

@@ -1,7 +1,7 @@
-#TED Notes
+# TED Notes
 Notes collected about when listening to TED
 
-##The Rise of Personal Robots | Cynthia Breazeal
+## The Rise of Personal Robots | Cynthia Breazeal
 * A lot of robots interact with things but what about interact with humans?
 Robot = Social Technology
 
@@ -12,4 +12,4 @@ Three ways robot can be viewd
 
 Create robot to spark imagination because ROBTS ARE ABOUT PEOPLE
 
-##T
+## T

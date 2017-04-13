@@ -1,18 +1,18 @@
-#Array
+# Array
 Same as c with feature but with extra features
 
-##declaration
+## declaration
 ```java
 datatype[] arrayRefVar; //preferred way
 datatype arrayRefvar[]; //works but not preferred
 ```
 
-##new aray
+## new aray
 ```java
 arrayRefVar = new datatype[arraysize]; //make sure arrayRefVar is defined
 dataType[] arrayVar = {value1, value2, ... valueN};
 ```
-##Loops
+## Loops
 can be used in loops
 ```java
 arrayRefVar = {v1, v2 ...};
@@ -21,7 +21,7 @@ for(int value: arrRefVar){
 }
 ```
 
-##Method
+## Method
 * can insert array to method
 ```java
 public static void printArray(int[] array){

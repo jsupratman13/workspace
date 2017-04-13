@@ -1,6 +1,6 @@
-#Using windows.h
+# Using windows.h
 Using windows.h can make program move in application. 
 
-##Compile Method
+## Compile Method
 g++ [filename] -mwindows
 

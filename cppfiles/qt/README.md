@@ -1,7 +1,7 @@
-#Qt programming
+# Qt programming
 Example program using Qt 
 
-##Compile Method
+## Compile Method
 qmake -project
 
 qmake

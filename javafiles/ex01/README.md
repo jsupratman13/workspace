@@ -1,10 +1,10 @@
-#Hello world from java
+# Hello world from java
 * filename must be same as public class
 * class name must begin with capital letter
 
-##Emu
+## Emu
 * restrict variable option
 * prevent bugs such as unknown variable
 
-##Comment
+## Comment
 comment is same as c, c++

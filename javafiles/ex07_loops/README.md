@@ -1,7 +1,7 @@
-#Loops
+# Loops
 Similar to c++ loops
 
-##Enhanced loop in java
+## Enhanced loop in java
 from java5 new loop is introduced
 ```java
 for(declaration : expression){

@@ -1,4 +1,4 @@
-#Basic operators
+# Basic operators
 really similar to normal programming operators
 * Arithmetic operators (+ - * /)
 * Relational operators (== != < >)
@@ -7,12 +7,12 @@ really similar to normal programming operators
 * Assignment operators( = += >>=)
 * Miscellaneous operators (? : instanceof)
 
-##Conditional Operator
+## Conditional Operator
 ```java
 variable x = (expression) ? value if true : value if false
 ```
 
-##intanceof operators
+## intanceof operators
 ```java
 (object reference variable) instanceof (class/interface type)
 ```

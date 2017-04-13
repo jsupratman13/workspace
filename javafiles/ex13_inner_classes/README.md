@@ -1,4 +1,4 @@
-#innter class
+# inner class
 class within class is called nested class
 
 ```java
@@ -14,7 +14,7 @@ two types
   * method local inner classes
   * anonymous inner class
 
-##anonymous inner class
+## anonymous inner class
 used to override the method of a class or an interface
 ```java
 AnonymousInner anInner = new AnonymousInner(){
@@ -23,7 +23,7 @@ AnonymousInner anInner = new AnonymousInner(){
 	}
 };
 ```
-##anonymous inner class as argument
+## anonymous inner class as argument
 ```java
 obj.myMethod(new MyClass(){
 	public void Do(){

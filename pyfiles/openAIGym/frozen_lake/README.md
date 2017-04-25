@@ -6,7 +6,7 @@
 
 ## actions
 0|left
-------
+-|----
 1|down
 2|right
 3|up

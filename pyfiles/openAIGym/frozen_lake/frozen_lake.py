@@ -1,77 +1,79 @@
 import gym
 import numpy as np
-env = gym.make('FrozenLake-v0')
 
-#initialize qTable
-#left, down, right, up
-Q = np.zeros([env.observation_space.n, env.action_space.n])
-num_episode = 20000
-gamma = 0.99 #discount ratio
-alpha = 0.01 #learning factor best to start at 0.1
-## passive is more stable
+class Agent(object):
+    def __init__(self, env):
+        self.env = env
+        self.gamma = 0.99
+        self.alpha = 0.1
+        self.num_episodes = 100
+        self.epsilon = 0.5
+        self.Q = np.zeros([env.observation_space.n, env.action_space.n])
 
-def epsilon_greedy(env, Q, state, epsilon=0.3):
-    e = np.random.uniform()
-    if e < epsilon:
-        action = env.action_space.sample()
-    else:
-        action = np.argmax(Q[state,:])
-    return action
+    def set_RL(self, gamma, alpha, num_episodes):
+        self.gamma = gamma
+        self.alpha = alpha
+        self.num_episodes = num_episodes
 
-def train_SARSA():
-    #train
-    for episode in range(num_episode):
-        state = env.reset()
-        action = epsilon_greedy(env,Q,state)
-        while True:
-            new_state, reward, done, info = env.step(action)
-            new_action = epsilon_greedy(env,Q,new_state)
-            Q[state,action] = Q[state,action] + alpha*(reward + gamma*Q[new_state,new_action] - Q[state,action])
-            state = new_state
-            action = new_action
-            if done:
-                break
+    def set_epsilon(self, eps):
+        self.epsilon = eps
 
-def train_QLearning():
-    #train
-    for episode in range(num_episode):
-        state = env.reset()
-        while True:
-            action = epsilon_greedy(env,Q,state)
-            new_state, reward, done, info = env.step(action)
-            Q[state,action] = Q[state,action] + alpha*(reward + gamma*np.max(Q[new_state,:]) - Q[state,action])
-            state = new_state
-            if done:
-                break
+    def epsilon_greedy(self, Q, state):
+        e = np.random.uniform()
+        if e < self.epsilon:
+            action = self.env.action_space.sample()
+        else:
+            action = np.argmax(Q[state,:])
+        return action
 
-def act():
-    #use agent
-    state = env.reset()
-    run = 1
-    success = 0
-    rList = []
-    rAll = 0
-    while run is not 100:
-        #env.render()
-        action = np.argmax(Q[state,:])
-        new_state,reward,done,info = env.step(action)
-        state = new_state
-        rAll += reward
-        if done:
-            #env.render()
-            run+=1
-            env.reset()
-            rList.append(rAll)
-            if reward:
-                success += 1
-                rAll = 0
-    print 'success rate ' + str(success) + '%'
-    if sum(rList) != 0:
-        print 'average reward '+ str(sum(rList)/len(rList))
+    def SARSA(self):
+        for episode in range(self.num_episodes):
+            s = self.env.reset()
+            a = self.epsilon_greedy(self.Q,s) 
+            while True:
+                s2 , r, done, info = self.env.step(a)
+                a2 = self.epsilon_greedy(self.Q,s2)
+                self.Q[s,a] = self.Q[s,a] + self.alpha * (r + self.gamma * self.Q[s2,a2] -  self.Q[s,a])
+                s = s2
+                a = a2
+                if done: break
+    
+    def QLearning(self):
+        for episode in range(self.num_episodes):
+            s = self.env.reset()
+            while True:
+                a = self.epsilon_greedy(self.Q, s)
+                s2, r, done, info = self.env.step(a)
+                self.Q[s,a] = self.Q[s,a] + self.alpha * (r + self.gamma * np.max(self.Q[s2,:]) - self.Q[s,a])
+                s = s2
+                if done: break
 
-if __name__ == '__main__':
-    act()
-    train_SARSA()
-    train_QLearning()
-    act()
-    print Q
+    def train(self, algorithm='SARSA'):
+        if algorithm == 'SARSA':
+            self.SARSA()
+        elif algorithm == 'QLearning':
+            self.QLearning()
+
+    def test(self):
+        total_reward = 0
+        for i in range(100):
+            s = self.env.reset()
+            reward = 0
+            while True:
+                a = np.argmax(self.Q[s,:])
+                s2, r, done, info = self.env.step(a)
+                s = s2
+                reward += r
+                if done:
+                    break
+            total_reward += reward
+        print 'success rate: ' + str(total_reward/100)
+
+if __name__=='__main__':
+    env = gym.make('FrozenLake-v0')
+    agent = Agent(env)
+    agent.set_RL(0.99, 0.01, 20000)
+    agent.set_epsilon(0.3)
+    agent.test()
+    agent.train(algorithm='QLearning')
+    agent.test()

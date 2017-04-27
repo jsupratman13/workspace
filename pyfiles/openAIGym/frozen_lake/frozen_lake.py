@@ -9,6 +9,7 @@ class Agent(object):
         self.num_episodes = 100
         self.epsilon = 0.5
         self.Q = np.zeros([env.observation_space.n, env.action_space.n])
+        self.Q_old = self.Q
 
     def set_RL(self, gamma, alpha, num_episodes):
         self.gamma = gamma
@@ -48,11 +49,24 @@ class Agent(object):
                 s = s2
                 if done: break
 
+    def QLearningPassive(self):
+        for episode in range(self.num_episodes):
+            s = self.env.reset()
+            while True:
+                a = self.epsilon_greedy(self.Q_old, s)
+                s2, r, done, info = self.env.step(a)
+                self.Q[s,a] = self.Q[s,a] + self.alpha * (r + self.gamma * np.max(self.Q[s2,:]) - self.Q[s,a])
+                s = s2
+                if done: break
+        self.Q_old = self.Q
+    
     def train(self, algorithm='SARSA'):
         if algorithm == 'SARSA':
             self.SARSA()
         elif algorithm == 'QLearning':
             self.QLearning()
+        else:
+            self.QLearningPassive()
 
     def test(self):
         total_reward = 0
@@ -76,4 +90,6 @@ if __name__=='__main__':
     agent.set_epsilon(0.3)
     agent.test()
     agent.train(algorithm='QLearning')
+    agent.test()
+    agent.train(algorithm='nn')
     agent.test()

@@ -1,5 +1,6 @@
 import gym
 import numpy as np
+import matplotlib.pyplot as plt
 
 class Agent(object):
     def __init__(self, env):
@@ -28,26 +29,46 @@ class Agent(object):
         return action
 
     def SARSA(self):
+        self.error_list = []
+        self.reward_list = []
         for episode in range(self.num_episodes):
             s = self.env.reset()
             a = self.epsilon_greedy(self.Q,s) 
+            reward = 0
+            error_avg = []
             while True:
                 s2 , r, done, info = self.env.step(a)
                 a2 = self.epsilon_greedy(self.Q,s2)
-                self.Q[s,a] = self.Q[s,a] + self.alpha * (r + self.gamma * self.Q[s2,a2] -  self.Q[s,a])
+                error = r + self.gamma * self.Q[s2,a2] - self.Q[s,a]
+                self.Q[s,a] = self.Q[s,a] + self.alpha * error
                 s = s2
                 a = a2
-                if done: break
+                error_avg.append(error)
+                reward += r
+                if done: 
+                    self.error_list.append(sum(error_avg)/len(error_avg))
+                    self.reward_list.append(reward)
+                    break
     
     def QLearning(self):
+        self.error_list = []
+        self.reward_list = []
         for episode in range(self.num_episodes):
             s = self.env.reset()
+            reward = 0
+            error_avg = []
             while True:
                 a = self.epsilon_greedy(self.Q, s)
                 s2, r, done, info = self.env.step(a)
-                self.Q[s,a] = self.Q[s,a] + self.alpha * (r + self.gamma * np.max(self.Q[s2,:]) - self.Q[s,a])
+                error = r + self.gamma * np.max(self.Q[s2,:]) - self.Q[s,a]
+                self.Q[s,a] = self.Q[s,a] + self.alpha * error
                 s = s2
-                if done: break
+                error_avg.append(error)
+                reward += r
+                if done: 
+                    self.error_list.append(sum(error_avg)/len(error_avg))
+                    self.reward_list.append(reward)
+                    break
 
     def QLearningPassive(self):
         for episode in range(self.num_episodes):
@@ -58,7 +79,7 @@ class Agent(object):
                 self.Q[s,a] = self.Q[s,a] + self.alpha * (r + self.gamma * np.max(self.Q[s2,:]) - self.Q[s,a])
                 s = s2
                 if done: break
-        self.Q_old = self.Q
+            self.Q_old = self.Q
     
     def train(self, algorithm='SARSA'):
         if algorithm == 'SARSA':
@@ -83,13 +104,26 @@ class Agent(object):
             total_reward += reward
         print 'success rate: ' + str(total_reward/100)
 
+    def plot(self):
+        plt.figure(1)
+        episode = np.arange(0,self.num_episodes,1)
+        plt.subplot(211)
+        plt.plot(episode,self.error_list)
+        plt.xlabel('episode')
+        plt.ylabel('error')
+
+        plt.subplot(212)
+        plt.plot(episode,self.reward_list)
+        plt.xlabel('episode')
+        plt.ylabel('reward')
+        
+        plt.show()
+
 if __name__=='__main__':
     env = gym.make('FrozenLake-v0')
     agent = Agent(env)
     agent.set_RL(0.99, 0.01, 20000)
     agent.set_epsilon(0.3)
-    agent.test()
     agent.train(algorithm='QLearning')
-    agent.test()
-    agent.train(algorithm='nn')
+    agent.plot()
     agent.test()

@@ -1,42 +1,9 @@
 import gym
+import math
 import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
-
-def RadialBasisFunction(state, center, sigma):
-    diff = state - center
-    diff = np.dot(diff,diff) #dot product of self = (euclidean dist)^2 since norm = root(dot product) = euclidean dist
-    sigma = 0.5
-    return np.exp(-0.5*diff/sigma**2)
-
-def MakeCenters():
-    s_max = env.observation_space.high
-    s_min = env.observation_space.low
-    s_pos = np.linspace(s_min[0],s_max[0],3)
-    s_vel = np.linspace(s_min[1],s_max[1],4)
-    
-    return cartesian([s_pos,s_vel])
-
-def cartesian(arrays, out=None):
-    arrays = [np.asarray(x) for x in arrays]
-    dtype = arrays[0].dtype
-    n = np.prod([x.size for x in arrays])
-    if out is None:
-        out = np.zeros([n,len(arrays)], dtype=dtype)
-    m = n / arrays[0].size
-    out[:,0] = np.repeat(arrays[0], m)
-    if arrays[1:]:
-        cartesian(arrays[1:], out=out[0:m,1:])
-        for j in xrange(1,arrays[0].size):
-            out[j*m:(j+1)*m, 1:] = out[0:m,1:]
-    return out
-
-def get_features(state, centers, num_base_func, var):
-    phi_list = []
-    for i in range(num_base_func):
-        phi = np.array([RadialBasisFunction(state, centers[i],var)])
-        phi_list.append(phi)
-    return np.array(phi_list)
+import utils
+from features import RBF
 
 def epsilon_greedy(w,s, epsilon=0.3):
     if np.random.uniform() < epsilon:
@@ -53,7 +20,7 @@ def policy(weights,state):
 def phi(s,a):
     #f = get_features(s,c,len(c),sigma)
     f = s #QUICK
-    z = np.zeros([len(c),1])
+    z = np.zeros([num_base_func,1])
     bias = np.array([1])
 
     for action in range(num_action):
@@ -75,11 +42,13 @@ def sampling(w, sampling=10):
     r_sample = np.zeros([sampling,1])
 
     s = env.reset()
-    f = get_features(s,c,num_base_func,sigma)
+    #f = get_features(s,c,num_base_func,sigma)
+    f = features.get_features(s)
     for step in range(sampling):
         a = epsilon_greedy(w,f,epsilon=ep)
         s2, r, done, info = env.step(a)
-        f2 = get_features(s2,c,num_base_func,sigma)
+        #f2 = get_features(s2,c,num_base_func,sigma)
+        f2 = features.get_features(s2)
 
         phi_sample[step] = phi(f,a).T
         P_sample[step] = phi(f2,policy(w,f2)).T
@@ -105,24 +74,24 @@ def LSPI(plot=False):
 
     error_list = []
     reward_list = []
+    best_r = -1000
     for i in range(num_episodes):
-        total_reward = 0
         print 'episode ' + str(i+1)
         old_w = w
         s = env.reset()
-        f = get_features(s,c,num_base_func,sigma)
+        #f = get_features(s,c,num_base_func,sigma)
+        f = features.get_features(s)
         for step in range(nb):
             a = epsilon_greedy(old_w,f,epsilon=ep)
             #a = env.action_space.sample()
             s2, r, done, info = env.step(a)
-            f2 = get_features(s2,c,num_base_func,sigma)
-
+            #f2 = get_features(s2,c,num_base_func,sigma)
+            f2 = features.get_features(s2)
             phi_sample[step] = phi(f,a).T
             P_sample[step] = phi(f2,policy(old_w,f2)).T
             r_sample[step] = r
             f = f2
             #s = s2
-            total_reward += r
 
         phi_sample = np.matrix(phi_sample)
         P_sample = np.matrix(P_sample)
@@ -134,10 +103,17 @@ def LSPI(plot=False):
         w = np.linalg.inv(A)*b
    
         error = old_w - w
-        error_list.append(np.asscalar(np.dot(error.T,error)))
-        reward_list.append(total_reward)
+        error = np.asscalar(np.dot(error.T,error))
+        error_list.append(error)
+        reward = test(w)
+        reward_list.append(reward)
+        if reward > best_r:
+            best_w = w
+            best_r = reward
+        #old_w = best_w
     
     return w,error_list,reward_list
+    #return best_w,error_list,reward_list
 
 def test(weights, render=False):
     num_trials = 100
@@ -145,41 +121,32 @@ def test(weights, render=False):
     for trial in range(num_trials):
         reward = 0
         s = env.reset()
-        f = get_features(s,c,len(c),sigma) #QUICK
-        print 'trial ' + str(trial)
+        f = features.get_features(s)
+        if render:
+            print 'trial ' + str(trial)
         while True:
             if render:
                 env.render()
             a = epsilon_greedy(weights,f,epsilon=0.2) #QUICK
             s2, r, done, info = env.step(a)
-            f = get_features(s2,c,len(c),sigma) #QUICK
+            f = features.get_features(s2)
             #s = s2
             reward += r
             if done:
                 break
         total_reward.append(reward)
-    print 'average reward: ' + str(sum(total_reward)/len(total_reward))
-
-def plot(error_list,reward_list):
-        plt.figure(1)
-        episode = np.arange(0,num_episodes,1)
-        plt.xlabel('episode')
-        plt.ylabel('error')
-        plt.subplot(211)
-        plt.plot(episode,error_list)
-        plt.subplot(212)
-        plt.plot(episode,reward_list)
-        plt.show()
+    return sum(total_reward)/len(total_reward)
 
 env = gym.make('MountainCar-v0')
 num_action = env.action_space.n
-c = MakeCenters()
-num_base_func = len(c)
-nb = len(c)*num_action+1
-sigma = 2.5 #2.5
-num_episodes = 100 #600
+num_base_func = 12
+nb = num_base_func*num_action+1
+sigma = 0.5 #2.5
+num_episodes = 15
 gamma = 0.999
 ep = 0.2        #0.2
+num_sampling = 100
+features = RBF(env,sigma,num_base_func)
 
 if __name__ == '__main__':
     w,error_list,reward_list = LSPI(plot=True)
@@ -187,6 +154,6 @@ if __name__ == '__main__':
         test(w,render=True)
     finally:
         print w
-        plot(error_list,reward_list)
+        utils.plot(error_list,reward_list)
     
 

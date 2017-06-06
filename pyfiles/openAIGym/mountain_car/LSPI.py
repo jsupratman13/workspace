@@ -36,81 +36,47 @@ def phi(s,a):
 def Q(s,a,w):
     return np.dot(w.T,phi(s,a))
 
-def sampling(w, sampling=10):
-    phi_sample = np.zeros([sampling,nb])
-    P_sample = np.zeros([sampling,nb])
-    r_sample = np.zeros([sampling,1])
+def sampling(w, num_sampling=100):
+    phi_sample = np.zeros([num_sampling,nb])
+    r_sample = np.zeros([num_sampling,1])
 
     s = env.reset()
-    #f = get_features(s,c,num_base_func,sigma)
     f = features.get_features(s)
-    for step in range(sampling):
+    for step in range(num_sampling):
         a = epsilon_greedy(w,f,epsilon=ep)
         s2, r, done, info = env.step(a)
-        #f2 = get_features(s2,c,num_base_func,sigma)
         f2 = features.get_features(s2)
-
-        phi_sample[step] = phi(f,a).T
-        P_sample[step] = phi(f2,policy(w,f2)).T
+        phi_sample[step] = (phi(f,a)*(phi(f,a) - gamma*phi(f2,policy(w,f2)))).T
         r_sample[step] = r
         f = f2
 
-    phi_sample = np.matrix(phi_sample)
-    P_sample = np.matrix(P_sample)
+    X = np.matrix(phi_sample)
     r_sample = np.matrix(r_sample)
 
-    A = phi_sample.T * (phi_sample - gamma * P_sample)
-    b = phi_sample.T * r_sample
-    return A,b
+    return X, r_sample
 
 def LSPI(plot=False):
-    old_w = np.zeros([nb,1])
-    w = old_w
-    #w = np.random.rand(nb,1)
-    phi_sample = np.zeros([nb,nb])
-    P_sample = np.zeros([nb,nb])
-    r_sample = np.zeros([nb,1])
-    A,b = sampling(w,sampling=nb)
+    w = np.zeros([nb,1])
+    phi_sample = np.zeros([num_sampling,nb])
+    r_sample = np.zeros([num_sampling,1])
 
     error_list = []
     reward_list = []
     best_r = -1000
-    for i in range(num_episodes):
-        print 'episode ' + str(i+1)
-        old_w = w
-        s = env.reset()
-        #f = get_features(s,c,num_base_func,sigma)
-        f = features.get_features(s)
-        for step in range(nb):
-            a = epsilon_greedy(old_w,f,epsilon=ep)
-            #a = env.action_space.sample()
-            s2, r, done, info = env.step(a)
-            #f2 = get_features(s2,c,num_base_func,sigma)
-            f2 = features.get_features(s2)
-            phi_sample[step] = phi(f,a).T
-            P_sample[step] = phi(f2,policy(old_w,f2)).T
-            r_sample[step] = r
-            f = f2
-            #s = s2
+    for i in range(num_iterations):
+        print 'iteration ' + str(i+1)
+        
+        X, r_sample = sampling(w)
+        w = np.linalg.inv(X.T*X)*X.T*r_sample
 
-        phi_sample = np.matrix(phi_sample)
-        P_sample = np.matrix(P_sample)
-        r_sample = np.matrix(r_sample)
-
-        #A = A + phi_sample * (phi_sample - gamma * P_sample).T
-        A = A + phi_sample.T*(phi_sample - gamma * P_sample)
-        b = b + phi_sample.T * r_sample
-        w = np.linalg.inv(A)*b
-   
-        error = old_w - w
-        error = np.asscalar(np.dot(error.T,error))
-        error_list.append(error)
-        reward = test(w)
-        reward_list.append(reward)
-        if reward > best_r:
-            best_w = w
-            best_r = reward
-        #old_w = best_w
+        #error = old_w - w
+        #error = np.asscalar(np.dot(error.T,error))
+        #error_list.append(error)
+        #reward = test(w)
+        #reward_list.append(reward)
+        #if reward > best_r:
+        #    best_w = w
+        #    best_r = reward
     
     return w,error_list,reward_list
     #return best_w,error_list,reward_list
@@ -129,6 +95,7 @@ def test(weights, render=False):
                 env.render()
             a = epsilon_greedy(weights,f,epsilon=0.2) #QUICK
             s2, r, done, info = env.step(a)
+            r = -1 * (0.5 - s2[0])
             f = features.get_features(s2)
             #s = s2
             reward += r
@@ -142,7 +109,7 @@ num_action = env.action_space.n
 num_base_func = 12
 nb = num_base_func*num_action+1
 sigma = 0.5 #2.5
-num_episodes = 15
+num_iterations = 10
 gamma = 0.999
 ep = 0.2        #0.2
 num_sampling = 100

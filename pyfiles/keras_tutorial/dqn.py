@@ -2,12 +2,14 @@
 #filename: dqn.py                             
 #brief: deep q-learning on neural network                  
 #author: Joshua Supratman                    
-#last modified: 2017.06.06 
+#last modified: 2017.06.07 
 #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
 import numpy as np
 import gym
+import json
 import collections,random,sys
 from keras.models import Sequential
+from keras.models import model_from_json
 from keras.layers import Dense
 from keras.optimizers import Adam
 
@@ -33,6 +35,15 @@ class Agent(object):
         model.add(Dense(100,activation='relu'))
         model.add(Dense(self.nactions,activation='linear'))
         model.compile(loss='mse', optimizer=Adam(lr=self.alpha))
+        model_json = model.to_json()
+        with open('mountaincar.json','w') as json_file:
+            json_file.write(model_json)
+        return model
+
+    def load_model(self,filename):
+        json_file = open(filename,'r')
+        model = model_from_json(json_file.read())
+        json_file.close() 
         return model
 
     def epsilon_greedy(self,state):
@@ -92,8 +103,10 @@ class Agent(object):
         #print 'loss: ' + str(loss)
         return history.history['loss'][0]
 
-    def test(self,filename,ntrials=5):
-        self.model.load_weights(filename)
+    def test(self,modelname,weightname,ntrials=5):
+        self.model = self.load_model(modelname)
+        self.model.load_weights(weightname)
+        self.model.compile(loss='mse', optimizer=Adam(lr=self.alpha))
         self.epsilon = 0.1
         for trial in range(ntrials):
             s = self.env.reset()
@@ -118,5 +131,5 @@ if __name__ == '__main__':
         if len(sys.argv) > 2: agent.model.load_weights(str(sys.argv[2]))
         agent.train()
     if str(sys.argv[1]) == 'test':
-        if len(sys.argv) == 2: assert False, 'missing .hdf5 weight'
-        agent.test(str(sys.argv[2]))
+        if len(sys.argv) < 4: assert False, 'missing .hdf5 weight or json file'
+        agent.test(str(sys.argv[2]),str(sys.argv[3]))

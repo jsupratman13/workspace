@@ -1,6 +1,6 @@
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
-#filename: dqn.py                             
-#brief: deep q-learning on neural network                  
+#filename: dnddqn.py                             
+#brief: dueling network architecture + DDQN               
 #author: Joshua Supratman                    
 #last modified: 2017.06.12 
 #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import collections,random,sys
 from keras.models import Sequential
 from keras.models import model_from_json
-from keras.layers import Dense
+from keras.layers import Dense, Merge
 from keras.optimizers import Adam
 
 class Agent(object):
@@ -34,10 +34,19 @@ class Agent(object):
         self.reward_list = []
 
     def create_neural_network(self):
+        base_model = Sequential()
+        base_model.add(Dense(100,input_dim=self.nstates, activation='linear'))
+        base_model.add(Dense(100,activation='relu'))
+
+        action = base_model
+        action.add(Dense(self.nactions,activation='linear'))
+        state = base_model
+        state.add(Dense(self.nstates,activation='linear'))
+
         model = Sequential()
-        model.add(Dense(100,input_dim=self.nstates, activation='linear'))
-        model.add(Dense(100,activation='relu'))
+        model.add(Merge([state,action]))
         model.add(Dense(self.nactions,activation='linear'))
+        
         model.compile(loss='mse', optimizer=Adam(lr=self.alpha))
         model_json = model.to_json()
         with open('mountaincar.json','w') as json_file:
@@ -105,7 +114,7 @@ class Agent(object):
         minibatch = random.sample(self.memory,self.batch_size)
         loss = 0.0
         for s,a,r,s2,done in minibatch:
-            Q = r if done else r + self.gamma * np.max(self.target_model.predict(s2)[0])
+            Q = r if done else r + self.gamma * self.target_model.predict(s2)[0][np.argmax(self.model.predict(s2)[0])]
             target = self.target_model.predict(s)
             target[0][a] = Q
             #history = self.model.fit(s,target,epochs=1,verbose=0)
@@ -113,8 +122,7 @@ class Agent(object):
         #return history.history['loss'][0]
         return loss
 
-    def test(self,modelname,weightname,ntrials=5):
-        self.model = self.load_model(modelname)
+    def test(self,weightname,ntrials=5):
         self.model.load_weights(weightname)
         self.model.compile(loss='mse', optimizer=Adam(lr=self.alpha))
         self.epsilon = 0.1
@@ -156,5 +164,5 @@ if __name__ == '__main__':
         agent.train()
         agent.plot()
     if str(sys.argv[1]) == 'test':
-        if len(sys.argv) < 4: assert False, 'missing .hdf5 weight or json file'
-        agent.test(str(sys.argv[2]),str(sys.argv[3]))
+        if len(sys.argv) < 3: assert False, 'missing .hdf5 weight or json file'
+        agent.test(str(sys.argv[2]))

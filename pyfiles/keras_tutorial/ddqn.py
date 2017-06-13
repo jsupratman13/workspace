@@ -1,6 +1,6 @@
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
 #filename: dqn.py                             
-#brief: deep q-learning on neural network                  
+#brief: double deep q-learning on neural network                  
 #author: Joshua Supratman                    
 #last modified: 2017.06.12 
 #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
@@ -64,6 +64,7 @@ class Agent(object):
             s = np.reshape(s,[1,self.nstates]) #change shape from (2,) to (1,2)
             treward = []
             while True:
+                #if episode > self.nepisodes-5: self.env.render()
                 a = self.epsilon_greedy(s)
                 s2, r, done, info = self.env.step(a)
                 s2 = np.reshape(s2, [1,self.nstates])
@@ -105,7 +106,7 @@ class Agent(object):
         minibatch = random.sample(self.memory,self.batch_size)
         loss = 0.0
         for s,a,r,s2,done in minibatch:
-            Q = r if done else r + self.gamma * np.max(self.target_model.predict(s2)[0])
+            Q = r if done else r + self.gamma * self.target_model.predict(s2)[0][np.argmax(self.model.predict(s2)[0])]
             target = self.target_model.predict(s)
             target[0][a] = Q
             #history = self.model.fit(s,target,epochs=1,verbose=0)
@@ -133,7 +134,7 @@ class Agent(object):
                     break
 
     def plot(self):
-        ep = np.arange(0, self.nepisodes, 1)
+        ep = np.arange(0,self.nepisodes, 1)
         plt.figure(1)
         plt.plot(ep, self.loss_list)
         plt.xlabel('episodes')

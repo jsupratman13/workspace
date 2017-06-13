@@ -1,0 +1,48 @@
+set number "turn on line numbering
+set showmatch "show matching brackets
+set ic "case insensitive search
+set hls "highlight search
+set incsearch "search as character are entered
+set autoindent "auto indent
+set expandtab "enable tab key to insert spaces instead of tab character
+set tabstop=4 "show tab into 4spaces
+set shiftwidth=4 "set size of size of spaces
+set softtabstop=4 "tab key insert spaces
+set showcmd "show command in bottom bar
+set encoding=utf-8 "set encoding
+set fileencodings=ucs-bom,ios-2022-jp-3,iso-2022-jp,eucjp-ms,euc-jisx0213,euc-jp,sjis,cp932,utf-8 "read files
+
+if &compatible
+  set nocompatible
+endif
+set runtimepath+=/home/jsupratman13/.cache/dein/repos/github.com/Shougo/dein.vim
+
+if dein#load_state('/home/jsupratman13/.cache/dein')
+    call dein#begin(expand('~/.cache/dein'))
+
+    call dein#add('Shougo/dein.vim')
+    call dein#add('Shougo/neocomplete.vim')
+    call dein#add('Shougo/vimproc.vim', {'build':'make'})
+    call dein#add('Shougo/neomru.vim')
+    call dein#add('Shougo/neosnippet.vim')
+    call dein#add('Yggdroot/indentLine')
+    call dein#add('scrooloose/nerdtree')
+    call dein#add('mattn/sonictemplate-vim')
+    "call dein#add('davidhalter/jedi-vim')
+    call dein#add('altercation/vim-colors-solarized')
+    call dein#end()
+    call dein#save_state()
+endif
+
+filetype plugin indent on
+syntax enable
+"set background=dark
+"colorscheme solarized
+
+let autodate_format = '%Y.%m.%d'
+let autodate_keyword_pre = "last modified: "
+let autodate_keyword_post = "."
+let g:indentLine_enabled=1
+"map { {}<LEFT>
+"map [ []<LEFT>
+"map ( ()<LEFT>

@@ -2,7 +2,7 @@
 #filename: dqn.py                             
 #brief: double deep q-learning on neural network                  
 #author: Joshua Supratman                    
-#last modified: 2017.06.12 
+#last modified: 2017.06.14. 
 #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
 import numpy as np
 import gym
@@ -23,6 +23,7 @@ class Agent(object):
         self.min_epsilon = 0.01
         self.epsilon_decay = 0.995
         self.batch_size = 32
+        self.updateQ = 100
         self.weights_name = 'check.hdf5'
         self.env = env
         self.nstates = env.observation_space.shape[0]
@@ -93,7 +94,7 @@ class Agent(object):
             print 'episode: ' + str(episode+1) + ' reward: ' + str(treward) + ' epsilon: ' + str(round(self.epsilon,2)) + ' loss: ' + str(round(loss,4))
 
             #Target Network
-            if not episode%100:
+            if not episode % self.updateQ:
                 self.target_model = self.model
 
             #shift from explore to exploit
@@ -112,7 +113,7 @@ class Agent(object):
             #history = self.model.fit(s,target,epochs=1,verbose=0)
             loss += self.model.train_on_batch(s,target)
         #return history.history['loss'][0]
-        return loss
+        return loss/len(minibatch)
 
     def test(self,modelname,weightname,ntrials=5):
         self.model = self.load_model(modelname)
@@ -136,15 +137,16 @@ class Agent(object):
     def plot(self):
         ep = np.arange(0,self.nepisodes, 1)
         plt.figure(1)
-        plt.plot(ep, self.loss_list)
-        plt.xlabel('episodes')
-        plt.ylabel('loss')
-        plt.savefig('loss.png')
-        plt.figure(2)
         plt.plot(ep, self.reward_list)
         plt.xlabel('episodes')
         plt.ylabel('reward')
         plt.savefig('reward.png')
+        plt.figure(2)
+        plt.plot(ep, self.loss_list)
+        plt.xlabel('episodes')
+        plt.ylabel('loss')
+        plt.yscale('log')
+        plt.savefig('loss.png')
         plt.show()
 
 if __name__ == '__main__':

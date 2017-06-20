@@ -18,7 +18,7 @@ class Agent(object):
     def __init__(self,env):
         self.gamma = 0.99
         self.alpha = 0.01
-        self.nepisodes = 1000
+        self.nepisodes = 10000
         self.epsilon = 0.3
         self.min_epsilon = 0.01
         self.epsilon_decay = 0.995
@@ -68,18 +68,18 @@ class Agent(object):
                 a = self.epsilon_greedy(s)
                 s2, r, done, info = self.env.step(a)
                 s2 = np.reshape(s2, [1,self.nstates])
-                r = 1/(1+(0.5-s2[0][0])**2)
-                #r = 100 if done and sum(treward) > -199 else r
+                #r = 1/(1+(0.5-s2[0][0])**2)
+                r = 100 if done and sum(treward) > -199 else r
                 self.memory.append((s,a,r,s2,done)) #store <s,a,r,s'> in replay memory
                 s = s2
                 treward.append(r)
                 if done:
                     break
-            treward = max(treward)
-            #treward = sum(treward)
+            #treward = max(treward)
+            treward = sum(treward)
 
             #save checkpoint
-            if treward >= max_r:
+            if treward > max_r:
             #if not episode%200:
                 max_r = treward
                 self.model.save_weights('check'+str(episode)+'.hdf5')

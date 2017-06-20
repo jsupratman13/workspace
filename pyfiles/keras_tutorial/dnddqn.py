@@ -2,23 +2,24 @@
 #filename: dnddqn.py                             
 #brief: dueling network architecture + DDQN               
 #author: Joshua Supratman                    
-#last modified: 2017.06.14. 
+#last modified: 2017.06.20. 
 #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
 import numpy as np
 import gym
 import json
 import matplotlib.pyplot as plt
 import collections,random,sys
-from keras.models import Sequential
+from keras.models import Sequential, Model
 from keras.models import model_from_json
-from keras.layers import Dense, Merge
+from keras.layers import Dense, Lambda
 from keras.optimizers import Adam
+from keras import backend as K
 
 class Agent(object):
     def __init__(self,env):
         self.gamma = 0.99
         self.alpha = 0.01
-        self.nepisodes = 1000
+        self.nepisodes = 10000
         self.epsilon = 0.3
         self.min_epsilon = 0.01
         self.epsilon_decay = 0.995
@@ -35,19 +36,29 @@ class Agent(object):
         self.reward_list = []
 
     def create_neural_network(self):
-        base_model = Sequential()
-        base_model.add(Dense(100,input_dim=self.nstates, activation='linear'))
-        base_model.add(Dense(100,activation='relu'))
-
-        action = base_model
-        action.add(Dense(self.nactions,activation='linear'))
-        state = base_model
-        state.add(Dense(self.nstates,activation='linear'))
-
         model = Sequential()
-        model.add(Merge([state,action]))
+        model.add(Dense(100, input_dim=self.nstates, activation='linear'))
+        model.add(Dense(100, activation='relu'))
         model.add(Dense(self.nactions,activation='linear'))
         
+        #get second last layer of the model, abondon the last layer
+        layer = model.layers[-2]
+        nb_action = model.output._keras_shape[-1]
+       
+        #layer y has a shape(nb_action+1)
+        #y[:,0] represents V(s;theta)
+        #y[:,1] represents A(a;theta)
+        y = Dense(nb_action+1, activation='linear')(layer.output)
+       
+        #calculate the Q(s,a,;theta)
+        #dueling type averate -> Q(s,a;theta) = V(s;theta) + (A(s,a;theta)-Average_a(A(s,a;theta)))
+        #dueling type max     -> Q(s,a;theta) = V(s;theta) + (A(s,a;theta)-Max_a(A(s,a;theta)))
+        #dueling type naive   -> Q(s,a;theta) = V(s;theta) + A(s,a;theta)
+        outputlayer = Lambda(lambda a: K.expand_dims(a[:,0], -1) + a[:,1:], output_shape=(nb_action,))(y)
+       
+        #connect
+        model = Model(input=model.input, output=outputlayer)
+       
         model.compile(loss='mse', optimizer=Adam(lr=self.alpha))
         model_json = model.to_json()
         with open('mountaincar.json','w') as json_file:
@@ -77,18 +88,18 @@ class Agent(object):
                 a = self.epsilon_greedy(s)
                 s2, r, done, info = self.env.step(a)
                 s2 = np.reshape(s2, [1,self.nstates])
-                r = 1/(1+(0.5-s2[0][0])**2)
-                #r = 100 if done and sum(treward) > -199 else r
+                #r = 1/(1+(0.5-s2[0][0])**2)
+                r = 100 if done and sum(treward) > -199 else r
                 self.memory.append((s,a,r,s2,done)) #store <s,a,r,s'> in replay memory
                 s = s2
                 treward.append(r)
                 if done:
                     break
-            treward = max(treward)
-            #treward = sum(treward)
+            #treward = max(treward)
+            treward = sum(treward)
 
             #save checkpoint
-            if treward >= max_r:
+            if treward > max_r:
             #if not episode%200:
                 max_r = treward
                 self.model.save_weights('check'+str(episode)+'.hdf5')
@@ -123,7 +134,8 @@ class Agent(object):
         #return history.history['loss'][0]
         return loss/len(minibatch)
 
-    def test(self,weightname,ntrials=5):
+    def test(self,modelname,weightname,ntrials=5):
+        self.model = self.load_model(modelname)
         self.model.load_weights(weightname)
         self.model.compile(loss='mse', optimizer=Adam(lr=self.alpha))
         self.epsilon = 0.1
@@ -166,5 +178,5 @@ if __name__ == '__main__':
         agent.train()
         agent.plot()
     if str(sys.argv[1]) == 'test':
-        if len(sys.argv) < 3: assert False, 'missing .hdf5 weight or json file'
-        agent.test(str(sys.argv[2]))
+        if len(sys.argv) < 4: assert False, 'missing .hdf5 weight or json file'
+        agent.test(str(sys.argv[2]),str(sys.argv[3]))

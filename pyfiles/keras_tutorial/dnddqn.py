@@ -2,7 +2,7 @@
 #filename: dnddqn.py                             
 #brief: dueling network architecture + DDQN               
 #author: Joshua Supratman                    
-#last modified: 2017.06.20. 
+#last modified: 2017.06.22. 
 #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
 import numpy as np
 import gym
@@ -17,27 +17,27 @@ from keras import backend as K
 
 class Agent(object):
     def __init__(self,env):
-        self.gamma = 0.99
-        self.alpha = 0.01
-        self.nepisodes = 10000
-        self.epsilon = 0.3
+        self.gamma = 0.95
+        self.alpha = 0.001
+        self.nepisodes = 5000
+        self.epsilon = 1.0
         self.min_epsilon = 0.01
         self.epsilon_decay = 0.995
         self.updateQ = 100
         self.batch_size = 32
-        self.weights_name = 'check.hdf5'
+        self.weights_name = 'checkfinal.hdf5'
         self.env = env
         self.nstates = env.observation_space.shape[0]
         self.nactions = env.action_space.n
         self.model = self.create_neural_network()
-        self.memory = collections.deque(maxlen=500)
+        self.memory = collections.deque(maxlen=2000)
         self.target_model = self.model
         self.loss_list = []
         self.reward_list = []
 
     def create_neural_network(self):
         model = Sequential()
-        model.add(Dense(100, input_dim=self.nstates, activation='linear'))
+        model.add(Dense(100, input_dim=self.nstates, activation='relu'))
         model.add(Dense(100, activation='relu'))
         model.add(Dense(self.nactions,activation='linear'))
         
@@ -51,17 +51,19 @@ class Agent(object):
         y = Dense(nb_action+1, activation='linear')(layer.output)
        
         #calculate the Q(s,a,;theta)
-        #dueling type averate -> Q(s,a;theta) = V(s;theta) + (A(s,a;theta)-Average_a(A(s,a;theta)))
+        #dueling type average -> Q(s,a;theta) = V(s;theta) + (A(s,a;theta)-Average_a(A(s,a;theta)))
+        #outputlayer = Lambda(lambda a:K.expand_dims(a[:,0], -1) + a[:,1:] - K.mean(a[:,1:], keepdims=True), output_shape=(nb_action,))(y)
         #dueling type max     -> Q(s,a;theta) = V(s;theta) + (A(s,a;theta)-Max_a(A(s,a;theta)))
+        outputlayer = Lambda(lambda a:K.expand_dims(a[:,0], -1) + a[:,1:] - K.max(a[:,1:,], keepdims=True), output_shape=(nb_action,))(y)
         #dueling type naive   -> Q(s,a;theta) = V(s;theta) + A(s,a;theta)
-        outputlayer = Lambda(lambda a: K.expand_dims(a[:,0], -1) + a[:,1:], output_shape=(nb_action,))(y)
+        #outputlayer = Lambda(lambda a: K.expand_dims(a[:,0], -1) + a[:,1:], output_shape=(nb_action,))(y)
        
         #connect
         model = Model(input=model.input, output=outputlayer)
        
         model.compile(loss='mse', optimizer=Adam(lr=self.alpha))
         model_json = model.to_json()
-        with open('mountaincar.json','w') as json_file:
+        with open('cartpole.json','w') as json_file:
             json_file.write(model_json)
         return model
 
@@ -84,31 +86,29 @@ class Agent(object):
             s = self.env.reset()
             s = np.reshape(s,[1,self.nstates]) #change shape from (2,) to (1,2)
             treward = []
+            loss = 0
             while True:
                 a = self.epsilon_greedy(s)
                 s2, r, done, info = self.env.step(a)
                 s2 = np.reshape(s2, [1,self.nstates])
-                #r = 1/(1+(0.5-s2[0][0])**2)
-                r = 100 if done and sum(treward) > -199 else r
                 self.memory.append((s,a,r,s2,done)) #store <s,a,r,s'> in replay memory
                 s = s2
                 treward.append(r)
                 if done:
                     break
-            #treward = max(treward)
             treward = sum(treward)
 
             #save checkpoint
+            if not episode%1000: max_r = max_r - 100
             if treward > max_r:
-            #if not episode%200:
-                max_r = treward
+                max_r = treward 
                 self.model.save_weights('check'+str(episode)+'.hdf5')
 
             #replay experience
             if len(self.memory) > self.batch_size:
                 loss = self.replay()
-                self.loss_list.append(loss)
-                self.reward_list.append(treward)
+            self.loss_list.append(loss)
+            self.reward_list.append(treward)
             
             print 'episode: ' + str(episode+1) + ' reward: ' + str(treward) + ' epsilon: ' + str(round(self.epsilon,2)) + ' loss: ' + str(round(loss,4))
 
@@ -171,7 +171,7 @@ class Agent(object):
 if __name__ == '__main__':
     if not len(sys.argv) > 1:
         assert False, 'missing argument'
-    env = gym.make('MountainCar-v0')
+    env = gym.make('CartPole-v1')
     agent = Agent(env)
     if str(sys.argv[1]) == 'train': 
         if len(sys.argv) > 2: agent.model.load_weights(str(sys.argv[2]))

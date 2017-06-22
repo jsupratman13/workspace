@@ -2,7 +2,7 @@
 #filename: dqn.py                             
 #brief: double deep q-learning on neural network                  
 #author: Joshua Supratman                    
-#last modified: 2017.06.20. 
+#last modified: 2017.06.21. 
 #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
 import numpy as np
 import gym
@@ -16,32 +16,32 @@ from keras.optimizers import Adam
 
 class Agent(object):
     def __init__(self,env):
-        self.gamma = 0.99
-        self.alpha = 0.01
-        self.nepisodes = 10000
-        self.epsilon = 0.3
+        self.gamma = 0.95
+        self.alpha = 0.001
+        self.nepisodes = 5000
+        self.epsilon = 1.0
         self.min_epsilon = 0.01
         self.epsilon_decay = 0.995
         self.batch_size = 32
         self.updateQ = 100
-        self.weights_name = 'check.hdf5'
+        self.weights_name = 'checkfinal.hdf5'
         self.env = env
         self.nstates = env.observation_space.shape[0]
         self.nactions = env.action_space.n
         self.model = self.create_neural_network()
-        self.memory = collections.deque(maxlen=500)
+        self.memory = collections.deque(maxlen=2000)
         self.target_model = self.model
         self.loss_list = []
         self.reward_list = []
 
     def create_neural_network(self):
         model = Sequential()
-        model.add(Dense(100,input_dim=self.nstates, activation='linear'))
+        model.add(Dense(100,input_dim=self.nstates, activation='relu'))
         model.add(Dense(100,activation='relu'))
         model.add(Dense(self.nactions,activation='linear'))
         model.compile(loss='mse', optimizer=Adam(lr=self.alpha))
         model_json = model.to_json()
-        with open('mountaincar.json','w') as json_file:
+        with open('cartpole.json','w') as json_file:
             json_file.write(model_json)
         print model.input_shape
         return model
@@ -65,32 +65,30 @@ class Agent(object):
             s = self.env.reset()
             s = np.reshape(s,[1,self.nstates]) #change shape from (2,) to (1,2)
             treward = []
+            loss = 0
             while True:
                 #if episode > self.nepisodes-5: self.env.render()
                 a = self.epsilon_greedy(s)
                 s2, r, done, info = self.env.step(a)
                 s2 = np.reshape(s2, [1,self.nstates])
-                #r = 1/(1+(0.5-s2[0][0])**2)
-                r = 100 if done and sum(treward) > -199 else r
                 self.memory.append((s,a,r,s2,done)) #store <s,a,r,s'> in replay memory
                 s = s2
                 treward.append(r)
                 if done:
                     break
-            #treward = max(treward)
             treward = sum(treward)
 
             #save checkpoint
+            if not episode%1000: max_r = max_r - 100
             if treward > max_r:
-            #if not episode%200:
-                max_r = treward
+                max_r = treward 
                 self.model.save_weights('check'+str(episode)+'.hdf5')
 
             #replay experience
             if len(self.memory) > self.batch_size:
                 loss = self.replay()
-                self.loss_list.append(loss)
-                self.reward_list.append(treward)
+            self.loss_list.append(loss)
+            self.reward_list.append(treward)
             
             print 'episode: ' + str(episode+1) + ' reward: ' + str(treward) + ' epsilon: ' + str(round(self.epsilon,2)) + ' loss: ' + str(round(loss,4))
 
@@ -153,7 +151,7 @@ class Agent(object):
 if __name__ == '__main__':
     if not len(sys.argv) > 1:
         assert False, 'missing argument'
-    env = gym.make('MountainCar-v0')
+    env = gym.make('CartPole-v1')
     agent = Agent(env)
     if str(sys.argv[1]) == 'train': 
         if len(sys.argv) > 2: agent.model.load_weights(str(sys.argv[2]))

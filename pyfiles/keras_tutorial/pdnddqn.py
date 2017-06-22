@@ -18,7 +18,7 @@ from keras import backend as K
 class Agent(object):
     def __init__(self,env):
         self.gamma = 0.95
-        self.alpha = 0.001
+        self.alpha = 0.0001
         self.nepisodes = 5000
         self.epsilon = 1.0
         self.min_epsilon = 0.01
@@ -30,7 +30,7 @@ class Agent(object):
         self.nstates = env.observation_space.shape[0]
         self.nactions = env.action_space.n
         self.model = self.create_neural_network()
-        self.memory = collections.deque(maxlen=2000)
+        self.memory = collections.deque(maxlen=500)
         self.target_model = self.model
         self.loss_list = []
         self.reward_list = []
@@ -139,7 +139,7 @@ class Agent(object):
         minibatch = []
         index = int(random.random()*self.batch_size)
         beta = 0.0
-        p_index = 2 #PRIORITY INDEX error=4 reward=2
+        p_index = 4 #PRIORITY INDEX error=4 reward=2
         max_w = max([m[p_index] for m in memory])
         for j in range(self.batch_size):
             beta += random.random() * 2.0 * max_w

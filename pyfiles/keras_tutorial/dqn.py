@@ -2,7 +2,7 @@
 #filename: dqn.py                             
 #brief: deep q-learning on neural network                  
 #author: Joshua Supratman                    
-#last modified: 2017.06.21. 
+#last modified: 2017.06.28. 
 #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
 import numpy as np
 import gym
@@ -78,7 +78,7 @@ class Agent(object):
 
             #save checkpoint
             if not episode%1000: max_r = max_r - 100
-            if treward > max_r:
+            if treward > max_r or not episode%500:
                 max_r = treward
                 self.model.save_weights('check'+str(episode)+'.hdf5')
 

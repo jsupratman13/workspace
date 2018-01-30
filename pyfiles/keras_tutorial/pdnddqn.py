@@ -1,6 +1,6 @@
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
-#filename: dqn.py                             
-#brief: deep q-learning on neural network                  
+#filename: pdnddqn.py                             
+#brief: dueling network architecture + DDQN               
 #author: Joshua Supratman                    
 #last modified: 2017.06.28. 
 #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
@@ -8,37 +8,57 @@ import numpy as np
 import gym
 import json
 import matplotlib.pyplot as plt
-import collections,random,sys
-from keras.models import Sequential
+import collections,random,sys,math
+from keras.models import Sequential, Model
 from keras.models import model_from_json
-from keras.layers import Dense
+from keras.layers import Dense, Lambda
 from keras.optimizers import Adam
+from keras import backend as K
 
 class Agent(object):
     def __init__(self,env):
         self.gamma = 0.95
-        self.alpha = 0.001
+        self.alpha = 0.0001
         self.nepisodes = 5000
         self.epsilon = 1.0
         self.min_epsilon = 0.01
         self.epsilon_decay = 0.995
-        self.batch_size = 32
         self.updateQ = 100
+        self.batch_size = 32
         self.weights_name = 'checkfinal.hdf5'
         self.env = env
         self.nstates = env.observation_space.shape[0]
         self.nactions = env.action_space.n
         self.model = self.create_neural_network()
-        self.memory = collections.deque(maxlen=2000)
+        self.memory = collections.deque(maxlen=500)
         self.target_model = self.model
         self.loss_list = []
         self.reward_list = []
 
     def create_neural_network(self):
         model = Sequential()
-        model.add(Dense(100,input_dim=self.nstates, activation='relu'))
-        model.add(Dense(100,activation='relu'))
+        model.add(Dense(100, input_dim=self.nstates, activation='relu'))
+        model.add(Dense(100, activation='relu'))
         model.add(Dense(self.nactions,activation='linear'))
+        
+        #get second last layer of the model, abondon the last layer
+        layer = model.layers[-2]
+        nb_action = model.output._keras_shape[-1]
+       
+        #layer y has a shape(nb_action+1)
+        #y[:,0] represents V(s;theta)
+        #y[:,1] represents A(a;theta)
+        y = Dense(nb_action+1, activation='linear')(layer.output)
+       
+        #calculate the Q(s,a,;theta)
+        #dueling type averate -> Q(s,a;theta) = V(s;theta) + (A(s,a;theta)-Average_a(A(s,a;theta)))
+        outputlayer = Lambda(lambda a: K.expand_dims(a[:,0], -1) + a[:,1:] - K.mean(a[:,1:], keepdims=True), output_shape=(nb_action,))(y)
+        #dueling type max     -> Q(s,a;theta) = V(s;theta) + (A(s,a;theta)-Max_a(A(s,a;theta)))
+        #outputlayer = Lambda(lambda a: K.expand_dims(a[:,0], -1) + a[:,1:] - K.max(a[:,1:], keepdims=True), output_shape=(nb_action,))(y)
+
+        #connect
+        model = Model(input=model.input, output=outputlayer)
+       
         model.compile(loss='mse', optimizer=Adam(lr=self.alpha))
         model_json = model.to_json()
         with open('cartpole.json','w') as json_file:
@@ -69,7 +89,10 @@ class Agent(object):
                 a = self.epsilon_greedy(s)
                 s2, r, done, info = self.env.step(a)
                 s2 = np.reshape(s2, [1,self.nstates])
-                self.memory.append((s,a,r,s2,done)) #store <s,a,r,s'> in replay memory
+                Q = r if done else r + self.gamma * self.target_model.predict(s2)[0][np.argmax(self.model.predict(s2)[0])]
+                target = self.target_model.predict(s)
+                error = math.fabs(target[0][a]-Q)
+                self.memory.append([s,a,r,s2,error,done]) #store <s,a,r,s'> in replay memory
                 s = s2
                 treward.append(r)
                 if done:
@@ -79,7 +102,7 @@ class Agent(object):
             #save checkpoint
             if not episode%1000: max_r = max_r - 100
             if treward > max_r or not episode%500:
-                max_r = treward
+                max_r = treward 
                 self.model.save_weights('check'+str(episode)+'.hdf5')
 
             #replay experience
@@ -101,16 +124,30 @@ class Agent(object):
         self.model.save_weights(self.weights_name)
 
     def replay(self):
-        minibatch = random.sample(self.memory,self.batch_size)
+        minibatch = self.resampling(self.memory)
         loss = 0.0
-        for s,a,r,s2,done in minibatch:
-            Q = r if done else r + self.gamma * np.max(self.target_model.predict(s2)[0])
+        for s,a,r,s2,error,done in minibatch:
+            Q = r if done else r + self.gamma * self.target_model.predict(s2)[0][np.argmax(self.model.predict(s2)[0])]
             target = self.target_model.predict(s)
             target[0][a] = Q
             #history = self.model.fit(s,target,epochs=1,verbose=0)
             loss += self.model.train_on_batch(s,target)
         #return history.history['loss'][0]
         return loss/len(minibatch)
+
+    def resampling(self, memory):
+        minibatch = []
+        index = int(random.random()*self.batch_size)
+        beta = 0.0
+        p_index = 4 #PRIORITY INDEX error=4 reward=2
+        max_w = max([m[p_index] for m in memory])
+        for j in range(self.batch_size):
+            beta += random.random() * 2.0 * max_w
+            while beta > memory[index][p_index]:
+                beta -= memory[index][p_index]
+                index = (index + 1) % self.batch_size
+            minibatch.append(memory[index])
+        return minibatch 
 
     def test(self,modelname,weightname,ntrials=5):
         self.model = self.load_model(modelname)

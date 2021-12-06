@@ -10,6 +10,8 @@ Plug 'miyakogi/seiya.vim' "control transparency
 Plug 'alvan/vim-closetag' "auto close tag for html etc
 Plug 'vim-airline/vim-airline' "colorscheme for vim status line
 Plug 'vim-airline/vim-airline-themes' "colorscheme for vim status line
+Plug 'prabirshrestha/vim-lsp' "vim language server
+Plug 'mattn/vim-lsp-settings' "vim language server auto settings
 call plug#end()
 
 "text rendering options
@@ -57,3 +59,9 @@ let g:seiya_auto_enable=1 "enable transparency
 "vim-airline/vim-airline plugin options
 let g:airline_theme='solarized'
 let g:airline_solarized_bg='dark'
+
+"vim-lsp plugin options (make sure to apt install awesome font)
+let g:lsp_diagnostics_signs_error = {'text': ''}
+let g:lsp_diagnostics_signs_warning = {'text': ''}
+let g:lsp_diagnostics_signs_hint= {'text': '?'}
+let g:lsp_diagnostics_echo_cursor=1

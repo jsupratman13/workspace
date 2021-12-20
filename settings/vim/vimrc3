@@ -12,6 +12,8 @@ Plug 'vim-airline/vim-airline' "colorscheme for vim status line
 Plug 'vim-airline/vim-airline-themes' "colorscheme for vim status line
 Plug 'prabirshrestha/vim-lsp' "vim language server
 Plug 'mattn/vim-lsp-settings' "vim language server auto settings
+Plug 'taketwo/vim-ros' "ROS vim plugin
+Plug 'ntpeters/vim-better-whitespace' "remove trailing whitespace
 call plug#end()
 
 "text rendering options
@@ -53,8 +55,17 @@ highlight CursorLine cterm=underline ctermfg=NONE ctermbg=None
 "load specific plugin and indent settings for certain filetype
 filetype plugin indent on
 
+"mtpeters/vim-better-whitepace plugin options
+let g:better_whitespace_enabled=1
+let g:strip_whitelines_at_eof=1
+let g:strip_whitespace_on_save=1
+let g:strip_whitespace_confirm=0
+
 "miyakogi/seiya plugin options
 let g:seiya_auto_enable=1 "enable transparency
+
+"preservim/nerdcommenter options
+let g:NERDDefaultAlign='left' "Left align
 
 "vim-airline/vim-airline plugin options
 let g:airline_theme='solarized'
@@ -65,3 +76,13 @@ let g:lsp_diagnostics_signs_error = {'text': ''}
 let g:lsp_diagnostics_signs_warning = {'text': ''}
 let g:lsp_diagnostics_signs_hint= {'text': '?'}
 let g:lsp_diagnostics_echo_cursor=1
+
+"have vim-lsp use efm-langserver
+augroup LspEFM
+  au!
+  autocmd User lsp_setup call lsp#register_server({
+      \ 'name': 'efm-langserver',
+      \ 'cmd': {server_info->[expand('$HOME/go/bin/efm-langserver'), '-c', expand('$HOME/.config/efm-langserver/config.yaml')]},
+      \ 'allowlist': ['vim', 'eruby', 'markdown', 'yaml'],
+      \ })
+augroup END
